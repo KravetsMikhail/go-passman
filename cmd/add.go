@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"go-passman/internal/models"
 	"go-passman/internal/storage"
 	"go-passman/internal/utils"
+
+	"github.com/spf13/cobra"
 )
 
 // NewAddCommand creates the add command
@@ -48,9 +49,9 @@ func handleAddManual() error {
 	}
 
 	login, err := utils.ReadInput("Enter login (optional, press Enter to skip): ")
-	if err != nil {
-		return err
-	}
+	//if err != nil {
+	//	return err
+	//}
 
 	password, err := utils.ReadPassword("Enter password: ")
 	if err != nil {
