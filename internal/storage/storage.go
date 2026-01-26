@@ -3,10 +3,10 @@ package storage
 import (
 	"encoding/json"
 	"fmt"
-	"os"
-	"os/exec"
 	"go-passman/internal/crypto"
 	"go-passman/internal/models"
+	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -170,7 +170,12 @@ func readPassword(prompt string) (string, error) {
 		// Just read normally (not ideal but will work)
 		return readPasswordFallback()
 	}
-	defer exec.Command("stty", "echo").Run()
+	//defer exec.Command("stty", "echo").Run()
+	defer func() {
+		cmd = exec.Command("stty", "echo")
+		cmd.Stdin = os.Stdin
+		cmd.Run()
+	}()
 
 	var password string
 	fmt.Scanln(&password)

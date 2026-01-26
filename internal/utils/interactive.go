@@ -28,7 +28,12 @@ func ReadPassword(prompt string) (string, error) {
 		fmt.Scanln(&password)
 		return password, nil
 	}
-	defer exec.Command("stty", "echo").Run()
+	//defer exec.Command("stty", "echo").Run()
+	defer func() {
+		cmd = exec.Command("stty", "echo")
+		cmd.Stdin = os.Stdin
+		cmd.Run()
+	}()
 
 	var password string
 	fmt.Scanln(&password)
