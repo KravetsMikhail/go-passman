@@ -2,6 +2,13 @@
 
 This document provides practical examples for using go-passman in various scenarios.
 
+## Running the program
+
+- **Windows** (Command Prompt or PowerShell): from the folder with the executable run `.\go-passman.exe` (e.g. `.\go-passman.exe --help`, `.\go-passman.exe add`). If `go-passman.exe` is in your PATH, you can run `go-passman` without path.
+- **Linux / macOS**: from the project folder run `./go-passman` (e.g. `./go-passman --help`). If installed in PATH, use `go-passman` alone.
+
+In the examples below, `go-passman` stands for the appropriate invocation on your system.
+
 ## Initial Setup
 
 ### First Run
@@ -12,7 +19,7 @@ go-passman --help
 
 # Check where your vault will be stored
 go-passman path
-# Output: Vault path: /home/user/go-passman/vault.json
+# Output: Vault path: /home/user/go-passman/vault.json  (or Windows path)
 ```
 
 ### Add Your First Password
@@ -55,27 +62,54 @@ go-passman add --generate
 
 ### View All Passwords
 
+Entries are **numbered** (1, 2, 3…) in the same order every time. You can use the number with `copy N` or `remove N` instead of typing long names.
+
+By default, list is **compact** (one line per entry), so the output fits narrow terminals:
+
 ```bash
 go-passman list
 
-# Output:
-# 🔐 Saved services:
-# - github
-# - aws
-# - gmail
-# - spotify
+# Output (compact format):
+# 🔐 Saved entries (use copy N or remove N):
+#
+#   1.  github · john.doe · github.com · work account
+#   2.  gmail · jane · mail.google.com · -
+#   3.  aws · admin · - · production
+#   4.  spotify · - · - · -
+```
+
+For a **table** with aligned columns (use when your terminal is wide enough):
+
+```bash
+go-passman list -t
+# or
+go-passman list --table
+
+# Output (table format):
+# 🔐 Saved entries (use copy N or remove N):
+#
+#   #     Service          Login                 Host                     Comment
+#   ----  ----------------  --------------------  -----------------------  ----------------------
+#   1     github            john.doe              github.com               work account
+#   2     gmail             jane                  mail.google.com          -
 ```
 
 ### Copy a Password to Clipboard
 
+You can copy by **service name** or by **number** (same order as in `list`):
+
 ```bash
 go-passman copy github
+# or, if github is 2nd in the list:
+go-passman copy 2
 
 # Output: 📋 Password for 'github' copied to clipboard!
 # (You can now paste it: Ctrl+V or Cmd+V)
 ```
 
 ### Update an Existing Password
+
+Each field shows the **current value**. Press **Enter** to keep it, or type a new value to replace. After update, the **new values** are printed, then the **resulting list** is shown and you are asked **Continue? (y/n)** — answer **y** to update another entry in the same run (30 second timeout; if no answer, the command exits).
 
 ```bash
 # Manual update
@@ -87,37 +121,66 @@ go-passman update
 # 2. aws
 # 3. gmail
 # Enter your choice (number): 1
-# Enter new password: ••••••••••••••
+#
+# Login [john.doe]: 
+# Host [github.com]: 
+# Comment [work]: 
+# Password (Enter to keep current): ••••••••
 
-# Output: ✅ Password for 'github' updated.
+# Output:
+# ✅ Password for 'github' updated.
+#
+#   New values:
+#     Service: github
+#     Login:   john.doe
+#     Host:    github.com
+#     Comment: work
+#     Password: ****
+#
+# 🔐 Saved entries ...
+#   (resulting list)
+#
+# Continue? (y/n): y   ← answer y to update another, or n to exit (30s timeout)
 ```
 
 ```bash
-# Update with generated password
+# Update with generated password (Login/Host/Comment: Enter = keep, type = replace)
 go-passman update --generate
 
 # Prompts:
-# Select a service to update:
-# 1. github
-# 2. aws
-# 3. gmail
-# Enter your choice (number): 1
+# Select a service to update: ...
+# Login [john.doe]: 
+# Host [github.com]: 
+# Comment [work]: 
 # Enter password length (default 16): 20
 # Include numbers? (y/n, default y): y
 # Include special characters? (y/n, default y): y
 
 # Output: ✅ Password for 'github' updated and copied to clipboard.
+#   New values: ...
 ```
 
 ### Remove a Password
 
+Like **update**, you first see a list and select by number. After removal, the **resulting list** is shown and **Continue? (y/n)** lets you remove more in the same run (30 second timeout).
+
 ```bash
-go-passman remove spotify
+go-passman remove
 
 # Prompts:
+# Select a service to remove:
+# 1. github
+# 2. gmail
+# 3. spotify
+# Enter your choice (number): 3
 # Are you sure you want to remove 'spotify'? (y/n): y
 
 # Output: ✅ Service 'spotify' removed.
+#
+# 🔐 Saved entries ...
+#   (resulting list)
+#
+# Continue? (y/n): y   ← remove another, or n to exit (30s timeout)
 ```
 
 ## Security
@@ -533,7 +596,8 @@ go-passman status
 go-passman list
 
 # Review and remove unused services
-go-passman remove old-service
+go-passman remove
+# Select by number, confirm (y); then "Continue? (y/n)" to remove more or n to exit
 
 # Update all passwords
 for service in $(go-passman list | grep -v "^📭"); do

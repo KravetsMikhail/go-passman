@@ -1,8 +1,9 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
-	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 	"go-passman/internal/storage"
@@ -12,40 +13,54 @@ import (
 // NewRemoveCommand creates the remove command
 func NewRemoveCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "remove [service]",
-		Short: "Remove a service or entry from the vault",
-		Args:  cobra.ExactArgs(1),
+		Use:   "remove",
+		Short: "Remove a service or entry (select from list)",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			service := args[0]
-			return handleRemove(service)
+			return handleRemove()
 		},
 	}
 
 	return cmd
 }
 
-func handleRemove(service string) error {
+func handleRemove() error {
 	vault, pwd, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}
 
-	if _, exists := vault.Entries[service]; !exists {
-		fmt.Printf("❌ Service '%s' not found.\n", service)
-		os.Exit(1)
+	for {
+		if len(vault.Entries) == 0 {
+			fmt.Println("📭 No services to remove.")
+			break
+		}
+
+		services := getSortedServices(vault.Entries)
+		service, err := utils.ChooseFromList(services, "Select a service to remove:", "Filter by name (Enter = all): ")
+		if err != nil {
+			if errors.Is(err, utils.ErrCancelled) {
+				break
+			}
+			return err
+		}
+
+		if !utils.ConfirmAction(fmt.Sprintf("Are you sure you want to remove '%s'?", service)) {
+			fmt.Println("❌ Operation cancelled.")
+		} else {
+			delete(vault.Entries, service)
+
+			if err := storage.SaveVault(vault, pwd); err != nil {
+				return err
+			}
+
+			fmt.Printf("✅ Service '%s' removed.\n", service)
+		}
+
+		printListCompact(getSortedServices(vault.Entries), vault.Entries)
+		if !utils.ConfirmActionWithTimeout("Continue?", 30*time.Second) {
+			break
+		}
 	}
-
-	if !utils.ConfirmAction(fmt.Sprintf("Are you sure you want to remove '%s'?", service)) {
-		fmt.Println("❌ Operation cancelled.")
-		return nil
-	}
-
-	delete(vault.Entries, service)
-
-	if err := storage.SaveVault(vault, pwd); err != nil {
-		return err
-	}
-
-	fmt.Printf("✅ Service '%s' removed.\n", service)
 	return nil
 }

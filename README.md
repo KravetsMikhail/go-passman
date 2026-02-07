@@ -5,9 +5,15 @@ Store, manage, encrypt, and decrypt passwords from your terminal.
 
 ## 🚀 Features
 
-- Add, remove, update, and list password entries
+- Add, remove, update, and list password entries (with optional **login**, **host**, **comment**)
 - Copy passwords to clipboard
 - Encrypt and decrypt your vault with a master password
+- List in **compact** format (fits narrow terminals) or **table** format (`list -t`); entries are **numbered** — use `copy N` or `remove N` for short names. With many entries (e.g. 100+), **list** is paginated (20 per page; Enter = next, q = quit). **Update** and **Remove** support a **filter by name** and paginated choice (25 per page; n = next, q = quit)
+- **Copy by number**: `go-passman copy 2` (same order as `list`). **Remove**: run `go-passman remove`, then select from list (like update)
+- **Update**: prompt shows current value; **Enter** = keep, type new = replace; after update, **new values** are printed. After each action the list is shown and **Continue?** lets you do multiple updates in one run (30s timeout).
+- **Remove**: select from list; after each removal the list is shown and **Continue?** for more (30s timeout).
+- **Add** (encrypted vault): vault password is asked first, then service name and other fields.
+- Hidden password input (Windows, Linux, macOS); terminal echo restored on Ctrl+C
 - Open the vault in any text editor
 - Cross-platform (Linux, macOS, Windows)
 - Vault file stored in the same directory as the executable
@@ -24,11 +30,38 @@ go build -o go-passman
 
 You'll find the compiled binary as `go-passman` (or `go-passman.exe` on Windows).
 
-Optionally, you can move it to a location in your $PATH or create a symlink.
+Optionally, you can move it to a location in your PATH or create a symlink.
+
+## ▶️ Running the program
+
+**Windows** (Command Prompt or PowerShell, from the project directory):
+
+```batch
+.\go-passman.exe --help
+.\go-passman.exe add
+.\go-passman.exe list
+```
+
+If the executable is in your PATH, you can run:
+
+```batch
+go-passman --help
+go-passman add
+```
+
+**Linux / macOS**:
+
+```bash
+./go-passman --help
+./go-passman add
+./go-passman list
+```
+
+If installed system-wide (e.g. in `/usr/local/bin`), use `go-passman` without `./`.
 
 ## 📝 Usage
 
-Run `go-passman --help` to see all available commands and options:
+Run `go-passman --help` (or `.\go-passman.exe --help` on Windows) to see all available commands and options:
 
 ```bash
 go-passman --help
@@ -43,8 +76,9 @@ go-passman add
 # Add a new entry with generated password
 go-passman add --generate
 
-# Copy password to clipboard
+# Copy password to clipboard (by name or by number from list)
 go-passman copy github
+go-passman copy 2
 
 # Encrypt your vault
 go-passman encrypt
@@ -58,14 +92,22 @@ go-passman open
 # Open with nano
 go-passman open nano
 
-# List all entries
+# List all entries (compact format; fits narrow terminals)
 go-passman list
 
-# Update an entry
+# List as table (use when terminal is wide enough)
+go-passman list -t
+# or: go-passman list --table
+
+# Filter list by name (substring, case-insensitive); numbers match copy N
+go-passman list -f git
+# or: go-passman list --filter git
+
+# Update an entry (prompts: current value shown; Enter = keep, type = replace; then new values printed)
 go-passman update
 
-# Remove an entry
-go-passman remove github
+# Remove an entry (select from list, like update)
+go-passman remove
 
 # Show vault status
 go-passman status
@@ -171,7 +213,7 @@ The vault file (`vault.json`) is stored in the **same directory as the executabl
 
 - Vault is optionally encrypted using AES-256-GCM with a password-derived key
 - Passwords are not stored in plaintext when encryption is enabled
-- Password input is hidden from the terminal using `stty` on Unix-like systems
+- Password input is hidden in the terminal (cross-platform via `golang.org/x/term`); if you press Ctrl+C during password entry, terminal echo is restored automatically
 - For maximum safety, ensure your vault is always encrypted and use a strong master password
 - Encrypted vaults are stored as Base64-encoded binary files
 - Password-based key derivation using PBKDF2-SHA256 with 100,000 iterations ensures security

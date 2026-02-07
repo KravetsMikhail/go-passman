@@ -7,8 +7,8 @@
 ### 🚀 I Just Want to Use It
 
 1. Read [QUICKSTART.md](QUICKSTART.md) (5 minutes)
-2. Run `go build -o go-passman`
-3. Start adding passwords: `go-passman add --generate`
+2. Build: `go build -o go-passman` (Linux/macOS) or `go build -o go-passman.exe` (Windows)
+3. Run: `./go-passman add --generate` (Linux/macOS) or `.\go-passman.exe add --generate` (Windows)
 
 ### 📚 I Want to Learn Everything
 
@@ -52,18 +52,22 @@
 
 ## 🏃 Get Running in 60 Seconds
 
+**Linux / macOS:** `./go-passman` — run from the project folder after `go build -o go-passman`.
+
+**Windows:** `.\go-passman.exe` — run from the project folder after `go build -o go-passman.exe`. If the executable is in PATH, you can use `go-passman` alone.
+
 ```bash
 # 1. Build (15 seconds)
-go build -o go-passman
+go build -o go-passman          # or: go build -o go-passman.exe (Windows)
 
 # 2. Add your first password (20 seconds)
-go-passman add --generate
+./go-passman add --generate     # Windows: .\go-passman.exe add --generate
 
 # 3. Encrypt your vault (15 seconds)
-go-passman encrypt
+./go-passman encrypt           # Windows: .\go-passman.exe encrypt
 
 # 4. Done! Check status (10 seconds)
-go-passman status
+./go-passman status            # Windows: .\go-passman.exe status
 ```
 
 ---
@@ -91,10 +95,10 @@ go-passman add                 # Manual entry
 go-passman add --generate      # Auto-generated
 
 # Manage passwords
-go-passman list                # List all
-go-passman copy github         # Copy to clipboard
-go-passman update              # Update existing
-go-passman remove github       # Delete entry
+go-passman list                # List all (numbered; copy N; remove = select from list)
+go-passman copy github         # Copy by name or number (e.g. copy 2)
+go-passman update              # Update (current value shown; Enter=keep)
+go-passman remove              # Select from list, then delete
 
 # Vault security
 go-passman encrypt             # Lock vault
@@ -294,7 +298,7 @@ go-passman --help                # Show help
 go-passman path                  # Find vault
 
 # Daily use
-go-passman list                  # List all
+go-passman list                  # List all (compact); list -t for table
 go-passman copy SERVICE          # Copy password
 go-passman add --generate        # Add new
 
@@ -305,7 +309,7 @@ go-passman status                # Check status
 
 # Management
 go-passman update                # Update password
-go-passman remove SERVICE        # Remove password
+go-passman remove                 # Select from list; then "Continue?" for more (30s timeout)
 go-passman open vim              # Edit manually
 ```
 

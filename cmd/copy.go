@@ -13,29 +13,30 @@ import (
 // NewCopyCommand creates the copy command
 func NewCopyCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "copy [service]",
-		Short: "Copy the password of a service to the clipboard",
+		Use:   "copy [service|N]",
+		Short: "Copy the password to the clipboard (by name or by number from list)",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			service := args[0]
-			return handleCopy(service)
+			return handleCopy(args[0])
 		},
 	}
 
 	return cmd
 }
 
-func handleCopy(service string) error {
+func handleCopy(serviceOrNum string) error {
 	vault, _, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}
 
-	entry, exists := vault.Entries[service]
-	if !exists {
-		fmt.Printf("❌ Service '%s' not found.\n", service)
+	service, err := resolveServiceOrNumber(vault.Entries, serviceOrNum)
+	if err != nil {
+		fmt.Printf("❌ %v\n", err)
 		os.Exit(1)
 	}
+
+	entry := vault.Entries[service]
 
 	if err := utils.CopyToClipboard(entry.Password); err != nil {
 		return err

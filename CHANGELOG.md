@@ -2,17 +2,34 @@
 
 All notable changes to go-passman will be documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **Update** and **Remove**: after each action the resulting list is shown; question **Continue? (y/n)** allows multiple updates or removals in one run. **30 second timeout** on "Continue?" — if no answer, the command exits (vault no longer held in memory).
+- **Add** (encrypted vault): vault password is asked **first**, then service name and other fields.
+- **Documentation**: explicit description of **running the program on Windows** (`.\go-passman.exe` from the project folder, or `go-passman` if in PATH); Linux/macOS `./go-passman`. README, QUICKSTART, INSTALL, EXAMPLES, and 00_START_HERE updated with Windows invocation and recent behavior.
+- **list -f / --filter**: filter output by name (substring, case-insensitive). Example: `list -f git` shows only entries whose name contains "git". Displayed numbers match the full list so `copy N` works as expected.
+- **Large vaults (100+ entries)**:
+  - **list**: paginated by 20 entries per page; "Press Enter for next page (q to quit)". When stdout is not a terminal (e.g. `list > file`), all entries are printed without pagination.
+  - **update** / **remove**: optional **filter by name** (substring, Enter = show all); when more than 25 entries, choice is paginated (n = next page, q = quit). Cancelling with q exits the update/remove loop.
+
 ## [0.2.0] - 2026-02-07
 
 ### Major Changes
 
-- Added fields: host and comment (optional)
-- Expanded data display in copy
+- Added optional fields: **login**, **host**, **comment** for each entry
+- **List command**: compact format by default (one line per entry, fits narrow terminals); optional table view with `list -t` / `list --table`
+- List shows Service · Login · Host · Comment; empty fields shown as `-`
+- **Numbered entries** in list (1, 2, 3…); **copy N** — copy by number (e.g. `copy 2`). **Remove** — like update: list is shown, select entry by number to remove
+- **Update command**: no more y/n prompts; each field shows **current value** — press **Enter** to keep, type to replace; **new values** printed after update
+- Hidden password input (cross-platform via `golang.org/x/term`)
 
 ### Fixed Issues
 
-- ✅ fixed password display when entering (stealthy input)
-- ✅ fixed errors when entering into update and add
+- ✅ Password input is hidden when entering (no echo; works on Windows, Linux, macOS)
+- ✅ Terminal echo restored when pressing Ctrl+C during password prompt (no stuck invisible input)
+- ✅ Encrypted vault: password is passed correctly for add, update, remove (no "password required" error after entering once)
 
 ## [0.1.0] - 2026-01-24
 

@@ -44,9 +44,12 @@ This guide provides detailed instructions for installing and using go-passman on
 
 4. **Run go-passman**
 
-   ```bash
-   .\go-passman.exe --help
-   ```
+   From the project directory use:
+   - `.\go-passman.exe --help` — show help
+   - `.\go-passman.exe add` — add entry
+   - `.\go-passman.exe list` — list entries
+
+   On Windows the executable has the `.exe` extension; use backslash: `.\go-passman.exe` (analogous to `./go-passman` on Linux/macOS).
 
 5. **(Optional) Add to PATH**
    - Move `go-passman.exe` to a directory in your PATH
@@ -86,9 +89,8 @@ This guide provides detailed instructions for installing and using go-passman on
    ```
 
 4. **Run go-passman**
-   ```bash
-   ./go-passman --help
-   ```
+
+   From the project directory: `./go-passman --help`, `./go-passman add`, etc. If installed system-wide, use `go-passman` without `./`.
 
 5. **(Optional) Install to System**
    ```bash
@@ -274,7 +276,8 @@ go-passman add
 go-passman list
 
 # Remove test entry
-go-passman remove test
+go-passman remove
+# Select "test" by number from the list, confirm (y)
 ```
 
 ## System Requirements
