@@ -42,13 +42,13 @@ func handleCopy(service string) error {
 	}
 
 	if entry.Login != "" {
-		fmt.Printf("Login for '%s':		%s\n", service, entry.Login)
+		fmt.Printf("Login for '%s': %s\n", service, entry.Login)
 	}
 	if entry.Host != "" {
-		fmt.Printf("Host for '%s':		%s\n", service, entry.Host)
+		fmt.Printf("Host for '%s': %s\n", service, entry.Host)
 	}
 	if entry.Comment != "" {
-		fmt.Printf("Comment for '%s':		%s\n", service, entry.Comment)
+		fmt.Printf("Comment for '%s': %s\n", service, entry.Comment)
 	}
 
 	fmt.Printf("📋 Password for '%s' copied to clipboard!\n", service)

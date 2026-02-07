@@ -58,9 +58,11 @@ Uses [Cobra](https://github.com/spf13/cobra) for CLI argument parsing and comman
 
 ```go
 type PasswordEntry struct {
-    Login     string `json:"login,omitempty"`
-    Password  string // The actual password
-    Encrypted bool   // Whether this entry is encrypted
+    Login     string `json:"login,omitempty"` //optional
+    Host      string `json:"host,omitempty"` //optional
+    Comment   string `json:"comment,omitempty"` //optional
+    Password  string `json:"password"` // The actual password
+    Encrypted bool   `json:"encrypted"` // Whether this entry is encrypted
 }
 
 type Vault struct {

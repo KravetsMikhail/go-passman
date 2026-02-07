@@ -321,6 +321,8 @@ go build -o go-passman
 go-passman add --generate
 # Service: github
 # Login: login1
+# Host: localhost
+# Comment: comment
 # Length: 20
 # Numbers: y
 # Special: y

@@ -26,6 +26,8 @@ go-passman copy --help
 go-passman add
 # Enter service name: github
 # Enter login (optional, press Enter to skip): login1
+# Enter host (optional, press Enter to skip): https://github.com
+# Enter comment (optional, press Enter to skip):
 # Enter password: mySecurePassword123
 # Expected: ✅ Password for 'github' saved.
 ```
@@ -68,6 +70,8 @@ go-passman add -g
 go-passman add --generate
 # Enter service name: github-generated
 # Enter login (optional, press Enter to skip): login1
+# Enter host (optional, press Enter to skip): 1.1.1.1
+# Enter comment (optional, press Enter to skip): comment
 # Enter password length (default 16): 20
 # Include numbers? (y/n, default y): y
 # Include special characters? (y/n, default y): y
