@@ -32,13 +32,13 @@ func NewAddCommand() *cobra.Command {
 }
 
 func handleAddManual() error {
-	service, err := utils.ReadInput("Enter service name: ")
+	// Load vault first (if encrypted, password prompt before service name)
+	vault, pwd, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}
 
-	// Check if service already exists
-	vault, pwd, err := storage.LoadVault()
+	service, err := utils.ReadInput("Enter service name: ")
 	if err != nil {
 		return err
 	}
@@ -85,13 +85,13 @@ func handleAddManual() error {
 }
 
 func handleAddGenerate() error {
-	service, err := utils.ReadInput("Enter service name: ")
+	// Load vault first (if encrypted, password prompt before service name)
+	vault, pwd, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}
 
-	// Check if service already exists
-	vault, pwd, err := storage.LoadVault()
+	service, err := utils.ReadInput("Enter service name: ")
 	if err != nil {
 		return err
 	}

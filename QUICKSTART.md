@@ -51,6 +51,13 @@ chmod +x build.sh
 ./dist/go-passman-linux-amd64 --help
 ```
 
+## Running the program
+
+- **Windows** (from the folder with the executable): `.\go-passman.exe` (e.g. `.\go-passman.exe --help`, `.\go-passman.exe add`). If in PATH: `go-passman`.
+- **Linux / macOS**: `./go-passman` (e.g. `./go-passman --help`). If installed in PATH: `go-passman`.
+
+In the examples below, use `go-passman` or the form that matches your system.
+
 ## First Time Setup
 
 ### 1. Create Your First Password
@@ -72,17 +79,21 @@ go-passman add --generate
 go-passman list
 ```
 
-Output:
+Output (numbered; use `copy 2` to copy by number; use `remove` and select from list to delete):
 
 ```bash
-🔐 Saved services:
-- github
+🔐 Saved entries (use copy N or remove N):
+
+  1.  github · john.doe · github.com · -
 ```
+
+For a table layout when your terminal is wide: `go-passman list -t`
 
 ### 3. Copy a Password
 
 ```bash
 go-passman copy github
+# or by number: go-passman copy 1
 # Password copied to clipboard!
 ```
 
@@ -133,8 +144,8 @@ go-passman update --generate
 ### Remove a Password
 
 ```bash
-go-passman remove github
-# Are you sure? (y/n): y
+go-passman remove
+# Select service by number, confirm (y/n); list is shown, then "Continue? (y/n)" to remove more (30s timeout)
 ```
 
 ### Back Up Your Vault
@@ -175,8 +186,8 @@ cp /home/user/go-passman/vault.json ./vault-backup.json
 
 ### "Cannot find go-passman command"
 
-- Make sure you built it: `go build -o go-passman`
-- Or use full path: `./go-passman --help`
+- **Windows**: run from the folder: `.\go-passman.exe --help`; or build with `go build -o go-passman.exe`.
+- **Linux/macOS**: make sure you built it: `go build -o go-passman`; or use full path: `./go-passman --help`.
 
 ### "Vault is encrypted"
 
@@ -217,7 +228,7 @@ go-passman add -g          # Add with generated password
 go-passman copy SERVICE    # Copy to clipboard
 go-passman list            # Show all services
 go-passman update          # Update password
-go-passman remove SERVICE  # Remove password
+go-passman remove         # Remove (select from list)
 
 # Encryption
 go-passman encrypt         # Encrypt vault
@@ -235,18 +246,29 @@ go-passman open vim        # Open in specific editor
 
 ## One-Minute Setup
 
+**Linux/macOS:**
+
 ```bash
 # 1. Build (30 seconds)
 go build -o go-passman
 
 # 2. Add first password (15 seconds)
-go-passman add --generate
+./go-passman add --generate
 
 # 3. Encrypt (15 seconds)
-go-passman encrypt
+./go-passman encrypt
 
 # Done! 💪
-go-passman status
+./go-passman status
+```
+
+**Windows:**
+
+```batch
+go build -o go-passman.exe
+.\go-passman.exe add --generate
+.\go-passman.exe encrypt
+.\go-passman.exe status
 ```
 
 ---

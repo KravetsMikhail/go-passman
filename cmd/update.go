@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
-	"os"
+	"time"
 
+	"go-passman/internal/models"
 	"go-passman/internal/storage"
 	"go-passman/internal/utils"
 
@@ -36,87 +38,73 @@ func handleUpdateManual() error {
 		return err
 	}
 
-	if len(vault.Entries) == 0 {
-		fmt.Println("📭 No services to update.")
-		os.Exit(1)
-	}
-
-	// List services and let user choose
-	services := make([]string, 0, len(vault.Entries))
-	for service := range vault.Entries {
-		services = append(services, service)
-	}
-
-	service, err := utils.ChooseFromList(services, "Select a service to update:")
-	if err != nil {
-		return err
-	}
-
-	entry := vault.Entries[service]
-
-	// Ask if user wants to update login
-	updateLogin, err := utils.ReadInput("Update login? (y/n, default n): ")
-	if err != nil {
-		return err
-	}
-
-	if updateLogin == "y" || updateLogin == "Y" {
-		login, err := utils.ReadInput(fmt.Sprintf("Enter new login (current: %s): ", entry.Login))
-		if err != nil {
-			return err
+	for {
+		if len(vault.Entries) == 0 {
+			fmt.Println("📭 No services to update.")
+			break
 		}
-		entry.Login = login
-	}
 
-	// Ask if user wants to update host
-	updateHost, err := utils.ReadInput("Update host? (y/n, default n): ")
-	if err != nil {
-		return err
-	}
-
-	if updateHost == "y" || updateHost == "Y" {
-		host, err := utils.ReadInput(fmt.Sprintf("Enter new host (current: %s): ", entry.Host))
+		services := getSortedServices(vault.Entries)
+		service, err := utils.ChooseFromList(services, "Select a service to update:", "Filter by name (Enter = all): ")
 		if err != nil {
-			return err
-		}
-		entry.Host = host
-	}
-
-	// Ask if user wants to update comment
-	updateComment, err := utils.ReadInput("Update comment? (y/n, default n): ")
-	if err != nil {
-		return err
-	}
-
-	if updateComment == "y" || updateComment == "Y" {
-		comment, err := utils.ReadInput(fmt.Sprintf("Enter new comment (current: %s): ", entry.Comment))
-		if err != nil {
-			return err
-		}
-		entry.Comment = comment
-	}
-
-	// Ask if user wants to update comment
-	updatePassword, err := utils.ReadInput("Update password? (y/n, default n): ")
-	if err != nil {
-		return err
-	}
-
-	if updatePassword == "y" || updatePassword == "Y" {
-		password, err := utils.ReadPassword("Enter new password: ")
-		if err != nil {
+			if errors.Is(err, utils.ErrCancelled) {
+				break
+			}
 			return err
 		}
 
-		entry.Password = password
-	}
-	vault.Entries[service] = entry
+		entry := vault.Entries[service]
 
-	if err := storage.SaveVault(vault, pwd); err != nil {
-		return err
-	}
+		// Login: show current; Enter = keep, type = replace
+		login, err := utils.ReadInput(fmt.Sprintf("Login [%s]: ", entry.Login))
+		if err != nil {
+			return err
+		}
+		if login != "" {
+			entry.Login = login
+		}
 
-	fmt.Printf("✅ Password for '%s' updated.\n", service)
+		// Host: show current; Enter = keep, type = replace
+		host, err := utils.ReadInput(fmt.Sprintf("Host [%s]: ", entry.Host))
+		if err != nil {
+			return err
+		}
+		if host != "" {
+			entry.Host = host
+		}
+
+		// Comment: show current; Enter = keep, type = replace
+		comment, err := utils.ReadInput(fmt.Sprintf("Comment [%s]: ", entry.Comment))
+		if err != nil {
+			return err
+		}
+		if comment != "" {
+			entry.Comment = comment
+		}
+
+		// Password: Enter = keep current, type new = replace (current not shown)
+		password, err := utils.ReadPassword("Password (Enter to keep current): ")
+		if err != nil {
+			return err
+		}
+		if password != "" {
+			entry.Password = password
+		}
+
+		vault.Entries[service] = entry
+
+		if err := storage.SaveVault(vault, pwd); err != nil {
+			return err
+		}
+
+		fmt.Printf("✅ Password for '%s' updated.\n", service)
+		printEntrySummary(service, &entry)
+
+		printListCompact(getSortedServices(vault.Entries), vault.Entries)
+		if !utils.ConfirmActionWithTimeout("Continue?", 30*time.Second) {
+			break
+		}
+	}
 	return nil
 }
 
@@ -126,83 +114,92 @@ func handleUpdateGenerate() error {
 		return err
 	}
 
-	if len(vault.Entries) == 0 {
-		fmt.Println("📭 No services to update.")
-		os.Exit(1)
-	}
+	for {
+		if len(vault.Entries) == 0 {
+			fmt.Println("📭 No services to update.")
+			break
+		}
 
-	// List services and let user choose
-	services := make([]string, 0, len(vault.Entries))
-	for service := range vault.Entries {
-		services = append(services, service)
-	}
+		services := getSortedServices(vault.Entries)
+		service, err := utils.ChooseFromList(services, "Select a service to update:", "Filter by name (Enter = all): ")
+		if err != nil {
+			if errors.Is(err, utils.ErrCancelled) {
+				break
+			}
+			return err
+		}
 
-	service, err := utils.ChooseFromList(services, "Select a service to update:")
-	if err != nil {
-		return err
-	}
+		entry := vault.Entries[service]
 
-	entry := vault.Entries[service]
-
-	// Ask if user wants to update login
-	updateLogin, err := utils.ReadInput("Update login? (y/n, default n): ")
-	if err != nil {
-		return err
-	}
-
-	if updateLogin == "y" || updateLogin == "Y" {
-		login, err := utils.ReadInput(fmt.Sprintf("Enter new login (current: %s): ", entry.Login))
+		// Login: show current; Enter = keep, type = replace
+		login, err := utils.ReadInput(fmt.Sprintf("Login [%s]: ", entry.Login))
 		if err != nil {
 			return err
 		}
-		entry.Login = login
-	}
+		if login != "" {
+			entry.Login = login
+		}
 
-	// Ask if user wants to update host
-	updateHost, err := utils.ReadInput("Update host? (y/n, default n): ")
-	if err != nil {
-		return err
-	}
-
-	if updateHost == "y" || updateHost == "Y" {
-		host, err := utils.ReadInput(fmt.Sprintf("Enter new host (current: %s): ", entry.Host))
+		// Host: show current; Enter = keep, type = replace
+		host, err := utils.ReadInput(fmt.Sprintf("Host [%s]: ", entry.Host))
 		if err != nil {
 			return err
 		}
-		entry.Host = host
-	}
+		if host != "" {
+			entry.Host = host
+		}
 
-	// Ask if user wants to update comment
-	updateComment, err := utils.ReadInput("Update comment? (y/n, default n): ")
-	if err != nil {
-		return err
-	}
-
-	if updateComment == "y" || updateComment == "Y" {
-		comment, err := utils.ReadInput(fmt.Sprintf("Enter new comment (current: %s): ", entry.Comment))
+		// Comment: show current; Enter = keep, type = replace
+		comment, err := utils.ReadInput(fmt.Sprintf("Comment [%s]: ", entry.Comment))
 		if err != nil {
 			return err
 		}
-		entry.Comment = comment
+		if comment != "" {
+			entry.Comment = comment
+		}
+
+		// Generate new password (replaces current)
+		length, useNumbers, useSpecial := utils.ChoosePasswordOptions()
+		password := utils.GeneratePassword(length, useNumbers, useSpecial)
+		entry.Password = password
+
+		vault.Entries[service] = entry
+
+		if err := storage.SaveVault(vault, pwd); err != nil {
+			return err
+		}
+
+		// Copy to clipboard
+		if err := utils.CopyToClipboard(password); err != nil {
+			fmt.Printf("⚠️ Password updated but clipboard copy failed: %v\n", err)
+		} else {
+			fmt.Printf("✅ Password for '%s' updated and copied to clipboard.\n", service)
+		}
+		printEntrySummary(service, &entry)
+
+		printListCompact(getSortedServices(vault.Entries), vault.Entries)
+		if !utils.ConfirmActionWithTimeout("Continue?", 30*time.Second) {
+			break
+		}
 	}
-
-	// Get password generation options
-	length, useNumbers, useSpecial := utils.ChoosePasswordOptions()
-	password := utils.GeneratePassword(length, useNumbers, useSpecial)
-
-	entry.Password = password
-	vault.Entries[service] = entry
-
-	if err := storage.SaveVault(vault, pwd); err != nil {
-		return err
-	}
-
-	// Copy to clipboard
-	if err := utils.CopyToClipboard(password); err != nil {
-		fmt.Printf("⚠️ Password updated but clipboard copy failed: %v\n", err)
-	} else {
-		fmt.Printf("✅ Password for '%s' updated and copied to clipboard.\n", service)
-	}
-
 	return nil
+}
+
+// printEntrySummary prints the entry fields after update (password masked).
+func printEntrySummary(service string, entry *models.PasswordEntry) {
+	fmt.Println()
+	fmt.Println("  New values:")
+	fmt.Printf("    Service: %s\n", service)
+	fmt.Printf("    Login:   %s\n", orEmpty(entry.Login))
+	fmt.Printf("    Host:    %s\n", orEmpty(entry.Host))
+	fmt.Printf("    Comment: %s\n", orEmpty(entry.Comment))
+	fmt.Println("    Password: ****")
+	fmt.Println()
+}
+
+func orEmpty(s string) string {
+	if s == "" {
+		return "(empty)"
+	}
+	return s
 }

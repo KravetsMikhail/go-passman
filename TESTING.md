@@ -36,7 +36,8 @@ go-passman add
 
 ```bash
 go-passman list
-# Expected: Shows "github" in the list
+# Expected: Numbered list "🔐 Saved entries (use copy N or remove N):" with "  1.  service · ..."
+# Optional: go-passman list -t for table; copy 2 by number; remove shows list to select
 ```
 
 #### Test: Copy Password
@@ -85,8 +86,11 @@ go-passman add --generate
 ```bash
 go-passman update
 # Select service from list
-# Enter new password: newPassword456
-# Expected: ✅ Password for 'service' updated.
+# Login [current]: (Enter to keep or type new)
+# Host [current]: (Enter to keep or type new)
+# Comment [current]: (Enter to keep or type new)
+# Password (Enter to keep current): newPassword456
+# Expected: ✅ ... updated. Then "New values:" with Service, Login, Host, Comment, Password: ****
 ```
 
 #### Test: Update with Generation
@@ -95,8 +99,8 @@ go-passman update
 go-passman update --generate
 # or
 go-passman update -g
-# Select service, choose options
-# Expected: ✅ Password for 'service' updated and copied to clipboard.
+# Select service; Login/Host/Comment prompts (Enter=keep); then password length/options
+# Expected: ✅ ... updated and copied to clipboard. Then "New values:" block.
 ```
 
 ### 5. Remove Operations
@@ -104,16 +108,18 @@ go-passman update -g
 #### Test: Remove Entry
 
 ```bash
-go-passman remove github
+go-passman remove
+# Select a service to remove: 1. github  2. ...  Enter your choice (number): 1
 # Are you sure you want to remove 'github'? (y/n): y
 # Expected: ✅ Service 'github' removed.
 ```
 
-#### Test: Remove Non-existent Entry
+#### Test: Remove – Cancel
 
 ```bash
-go-passman remove nonexistent
-# Expected: ❌ Service 'nonexistent' not found.
+go-passman remove
+# Select a service (number), then answer n to "Are you sure?"
+# Expected: ❌ Operation cancelled.
 ```
 
 ### 6. Encryption/Decryption

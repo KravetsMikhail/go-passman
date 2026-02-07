@@ -134,14 +134,17 @@ Each command file implements a specific feature:
 
 #### `list.go` - List All Entries
 
-- Shows all service names in vault
-- Displays count
+- **Numbered** entries (1, 2, 3…); same order used for `copy N`; `remove` shows list and user selects (like update)
+- **Compact format** (default): one line per entry (Service · Login · Host · Comment), fits narrow terminals
+- **Table format** (`-t` / `--table`): aligned columns with # column for wide terminals
+- Sorted by service name; empty login/host/comment shown as `-`
 
 #### `update.go` - Update Entry
 
-- Lists available services
-- Allows user to choose and update
-- Supports generation or manual input
+- Lists available services (same order as list)
+- **No y/n prompts**: each field shows current value; **Enter** = keep, type = replace
+- After update, prints **new values** (password masked as ****)
+- Supports manual update or `--generate` for new password
 
 #### `open.go` - Open in Editor
 
