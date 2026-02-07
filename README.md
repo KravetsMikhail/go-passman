@@ -87,6 +87,8 @@ When encrypted, the file contents are AES-256-GCM encrypted and base64-encoded.
   "entries": {
     "github": {
       "login": "login1",
+      "host": "localhost",
+      "comment": "comment",
       "password": "hunter2",
       "encrypted": false
     }

@@ -59,6 +59,8 @@ chmod +x build.sh
 go-passman add --generate
 # Enter service name: github
 # Enter login (optional, press Enter to skip): login1
+# Enter host (optional, press Enter to skip): 1.1.1.1
+# Enter comment (optional, press Enter to skip): comment1
 # Enter password length: 20
 # Include numbers: y
 # Include special characters: y
@@ -115,6 +117,8 @@ Output:
 go-passman add
 # Enter service name: github
 # Enter login (optional, press Enter to skip): login1
+# Enter host (optional, press Enter to skip): https://github.com
+# Enter comment (optional, press Enter to skip): github comment
 # Enter password: ••••••••
 ```
 

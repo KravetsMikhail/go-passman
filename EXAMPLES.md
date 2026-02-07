@@ -25,6 +25,8 @@ go-passman add
 # Prompts:
 # Enter service name: github
 # Enter login (optional, press Enter to skip): login1
+# Enter host (optional, press Enter to skip): 1.1.1.1
+# Enter comment (optional, press Enter to skip):
 # Enter password: ••••••••••••••
 # (Input is hidden)
 
@@ -39,6 +41,8 @@ go-passman add --generate
 # Prompts:
 # Enter service name: aws
 # Enter login (optional, press Enter to skip): login1
+# Enter host (optional, press Enter to skip): localhost
+# Enter comment (optional, press Enter to skip):
 # Enter password length (default 16): 24
 # Include numbers? (y/n, default y): y
 # Include special characters? (y/n, default y): y
@@ -190,11 +194,15 @@ This opens the vault in the specified editor. You can manually edit entries:
   "entries": {
     "github": {
       "login": "login1",
+      "host": "localhost:8088",
+      "comment": "comment 1",
       "password": "myPassword123!",
       "encrypted": false
     },
     "aws": {
       "login": "login2",
+      "host": "localhost:8181",
+      "comment": "comment 2",
       "password": "anotherPassword456!",
       "encrypted": false
     }
@@ -256,18 +264,23 @@ Store all your development credentials:
 go-passman add
 # Service: github
 # Login: your_github_login
+# Host: your_github_host
+# Comment: your_github_comment
 # Password: your_github_token
 
 # Add GitLab
 go-passman add
 # Service: gitlab
 # Login: your_gitlab_login
+# Host: your_gitlab_host
+# Comment: your_gitlab_comment
 # Password: your_gitlab_token
 
 # Add NPM
 go-passman add --generate
 # Service: npm
 # Login: your_npm_login
+# Comment: your_npm_comment
 # (Use generated password)
 
 # When you need a password
@@ -282,17 +295,23 @@ go-passman copy github
 go-passman add
 # Service: postgres-prod
 # Login: postgres_login
+# Host: postgres_host
+# Comment: postgres_comment
 # Password: (secure password)
 
 go-passman add
 # Service: postgres-dev
 # Login: postgres_login
+# Host: postgres_host
+# Comment: postgres_comment
 # Password: (secure password)
 
 # MySQL credentials
 go-passman add --generate
 # Service: mysql-backup
 # Login: mysql_login
+# Host: mysql_host
+# Comment: mysql_comment
 # (Auto-generate backup password)
 
 # List all database credentials
