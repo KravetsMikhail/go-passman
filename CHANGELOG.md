@@ -2,7 +2,19 @@
 
 All notable changes to go-passman will be documented in this file.
 
-## [0.1.0] - 2024-01-24
+## [0.2.0] - 2026-02-07
+
+### Major Changes
+
+- Added fields: host and comment (optional)
+- Expanded data display in copy
+
+### Fixed Issues
+
+- ✅ fixed password display when entering (stealthy input)
+- ✅ fixed errors when entering into update and add
+
+## [0.1.0] - 2026-01-24
 
 ### Major Changes
 
@@ -167,7 +179,14 @@ MIT License - See LICENSE file for details
 
 ## Version History
 
-### 0.1.0 (2024-01-24)
+### 0.2.0 (2026-02-07)
+
+- Added fields: host and comment (optional)
+- Expanded data display in copy
+- Fixed password display when entering (stealthy input)
+- Fixed errors when entering into update and add
+
+### 0.1.0 (2026-01-24)
 
 - Initial release in Go
 - Complete password management system

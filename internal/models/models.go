@@ -3,6 +3,8 @@ package models
 // PasswordEntry represents a single password entry in the vault
 type PasswordEntry struct {
 	Login     string `json:"login,omitempty"`
+	Host      string `json:"host,omitempty"`
+	Comment   string `json:"comment,omitempty"`
 	Password  string `json:"password"`
 	Encrypted bool   `json:"encrypted"`
 }

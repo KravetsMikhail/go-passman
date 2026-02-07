@@ -97,6 +97,6 @@ go version  # Check your version
 
 ---
 
-**Last Updated**: 2024-01-24  
+**Last Updated**: 2026-02-07  
 **Minimum Go Version**: 1.19  
 **Tested with**: Go 1.19, 1.20, 1.21, 1.22+

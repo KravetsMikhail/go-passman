@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"go-passman/internal/storage"
+
+	"github.com/spf13/cobra"
 )
 
 // NewRootCommand creates the root command
@@ -14,7 +15,7 @@ func NewRootCommand() *cobra.Command {
 		Use:     "go-passman",
 		Short:   "A simple CLI password manager",
 		Long:    "A simple and secure CLI password manager. Store, manage, encrypt, and decrypt passwords from your terminal.",
-		Version: "0.1.0",
+		Version: "0.2.0",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if err := storage.Init(); err != nil {
 				fmt.Fprintf(os.Stderr, "Error initializing storage: %v\n", err)

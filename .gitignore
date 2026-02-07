@@ -28,7 +28,6 @@ go.work
 
 # Vault file (don't commit)
 vault.json
-vault.json.backup
 
 # Build artifacts
 go-passman

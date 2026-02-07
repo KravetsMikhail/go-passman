@@ -38,7 +38,7 @@ func handleAddManual() error {
 	}
 
 	// Check if service already exists
-	vault, err := storage.LoadVault()
+	vault, pwd, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}
@@ -49,9 +49,19 @@ func handleAddManual() error {
 	}
 
 	login, err := utils.ReadInput("Enter login (optional, press Enter to skip): ")
-	//if err != nil {
-	//	return err
-	//}
+	if err != nil {
+		return err
+	}
+
+	host, err := utils.ReadInput("Enter host (optional, press Enter to skip): ")
+	if err != nil {
+		return err
+	}
+
+	comment, err := utils.ReadInput("Enter comment (optional, press Enter to skip): ")
+	if err != nil {
+		return err
+	}
 
 	password, err := utils.ReadPassword("Enter password: ")
 	if err != nil {
@@ -60,11 +70,13 @@ func handleAddManual() error {
 
 	vault.Entries[service] = models.PasswordEntry{
 		Login:     login,
+		Host:      host,
+		Comment:   comment,
 		Password:  password,
 		Encrypted: false,
 	}
 
-	if err := storage.SaveVault(vault, nil); err != nil {
+	if err := storage.SaveVault(vault, pwd); err != nil {
 		return err
 	}
 
@@ -79,7 +91,7 @@ func handleAddGenerate() error {
 	}
 
 	// Check if service already exists
-	vault, err := storage.LoadVault()
+	vault, pwd, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}
@@ -94,17 +106,29 @@ func handleAddGenerate() error {
 		return err
 	}
 
+	host, err := utils.ReadInput("Enter host (optional, press Enter to skip): ")
+	if err != nil {
+		return err
+	}
+
+	comment, err := utils.ReadInput("Enter comment (optional, press Enter to skip): ")
+	if err != nil {
+		return err
+	}
+
 	// Get password generation options
 	length, useNumbers, useSpecial := utils.ChoosePasswordOptions()
 	password := utils.GeneratePassword(length, useNumbers, useSpecial)
 
 	vault.Entries[service] = models.PasswordEntry{
 		Login:     login,
+		Host:      host,
+		Comment:   comment,
 		Password:  password,
 		Encrypted: false,
 	}
 
-	if err := storage.SaveVault(vault, nil); err != nil {
+	if err := storage.SaveVault(vault, pwd); err != nil {
 		return err
 	}
 

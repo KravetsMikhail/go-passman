@@ -25,7 +25,7 @@ func NewRemoveCommand() *cobra.Command {
 }
 
 func handleRemove(service string) error {
-	vault, err := storage.LoadVault()
+	vault, pwd, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func handleRemove(service string) error {
 
 	delete(vault.Entries, service)
 
-	if err := storage.SaveVault(vault, nil); err != nil {
+	if err := storage.SaveVault(vault, pwd); err != nil {
 		return err
 	}
 

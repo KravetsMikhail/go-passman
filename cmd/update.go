@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"go-passman/internal/storage"
 	"go-passman/internal/utils"
+
+	"github.com/spf13/cobra"
 )
 
 // NewUpdateCommand creates the update command
@@ -30,7 +31,7 @@ func NewUpdateCommand() *cobra.Command {
 }
 
 func handleUpdateManual() error {
-	vault, err := storage.LoadVault()
+	vault, pwd, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}
@@ -67,15 +68,51 @@ func handleUpdateManual() error {
 		entry.Login = login
 	}
 
-	password, err := utils.ReadPassword("Enter new password: ")
+	// Ask if user wants to update host
+	updateHost, err := utils.ReadInput("Update host? (y/n, default n): ")
 	if err != nil {
 		return err
 	}
 
-	entry.Password = password
+	if updateHost == "y" || updateHost == "Y" {
+		host, err := utils.ReadInput(fmt.Sprintf("Enter new host (current: %s): ", entry.Host))
+		if err != nil {
+			return err
+		}
+		entry.Host = host
+	}
+
+	// Ask if user wants to update comment
+	updateComment, err := utils.ReadInput("Update comment? (y/n, default n): ")
+	if err != nil {
+		return err
+	}
+
+	if updateComment == "y" || updateComment == "Y" {
+		comment, err := utils.ReadInput(fmt.Sprintf("Enter new comment (current: %s): ", entry.Comment))
+		if err != nil {
+			return err
+		}
+		entry.Comment = comment
+	}
+
+	// Ask if user wants to update comment
+	updatePassword, err := utils.ReadInput("Update password? (y/n, default n): ")
+	if err != nil {
+		return err
+	}
+
+	if updatePassword == "y" || updatePassword == "Y" {
+		password, err := utils.ReadPassword("Enter new password: ")
+		if err != nil {
+			return err
+		}
+
+		entry.Password = password
+	}
 	vault.Entries[service] = entry
 
-	if err := storage.SaveVault(vault, nil); err != nil {
+	if err := storage.SaveVault(vault, pwd); err != nil {
 		return err
 	}
 
@@ -84,7 +121,7 @@ func handleUpdateManual() error {
 }
 
 func handleUpdateGenerate() error {
-	vault, err := storage.LoadVault()
+	vault, pwd, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}
@@ -119,6 +156,34 @@ func handleUpdateGenerate() error {
 			return err
 		}
 		entry.Login = login
+	}
+
+	// Ask if user wants to update host
+	updateHost, err := utils.ReadInput("Update host? (y/n, default n): ")
+	if err != nil {
+		return err
+	}
+
+	if updateHost == "y" || updateHost == "Y" {
+		host, err := utils.ReadInput(fmt.Sprintf("Enter new host (current: %s): ", entry.Host))
+		if err != nil {
+			return err
+		}
+		entry.Host = host
+	}
+
+	// Ask if user wants to update comment
+	updateComment, err := utils.ReadInput("Update comment? (y/n, default n): ")
+	if err != nil {
+		return err
+	}
+
+	if updateComment == "y" || updateComment == "Y" {
+		comment, err := utils.ReadInput(fmt.Sprintf("Enter new comment (current: %s): ", entry.Comment))
+		if err != nil {
+			return err
+		}
+		entry.Comment = comment
 	}
 
 	// Get password generation options
@@ -128,13 +193,13 @@ func handleUpdateGenerate() error {
 	entry.Password = password
 	vault.Entries[service] = entry
 
-	if err := storage.SaveVault(vault, nil); err != nil {
+	if err := storage.SaveVault(vault, pwd); err != nil {
 		return err
 	}
 
 	// Copy to clipboard
 	if err := utils.CopyToClipboard(password); err != nil {
-		fmt.Printf("⚠️  Password updated but clipboard copy failed: %v\n", err)
+		fmt.Printf("⚠️ Password updated but clipboard copy failed: %v\n", err)
 	} else {
 		fmt.Printf("✅ Password for '%s' updated and copied to clipboard.\n", service)
 	}
