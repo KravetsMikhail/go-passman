@@ -35,7 +35,7 @@ func NewDecryptCommand() *cobra.Command {
 }
 
 func handleEncrypt() error {
-	vault, err := storage.LoadVault()
+	vault, _, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func handleDecrypt() error {
 		return nil
 	}
 
-	vault, err := storage.LoadVault()
+	vault, _, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}

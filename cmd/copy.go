@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/spf13/cobra"
 	"go-passman/internal/storage"
 	"go-passman/internal/utils"
+
+	"github.com/spf13/cobra"
 )
 
 // NewCopyCommand creates the copy command
@@ -25,7 +26,7 @@ func NewCopyCommand() *cobra.Command {
 }
 
 func handleCopy(service string) error {
-	vault, err := storage.LoadVault()
+	vault, _, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}
@@ -41,9 +42,16 @@ func handleCopy(service string) error {
 	}
 
 	if entry.Login != "" {
-		fmt.Printf("📋 Password for '%s' copied to clipboard! (login: %s)\n", service, entry.Login)
-	} else {
-		fmt.Printf("📋 Password for '%s' copied to clipboard!\n", service)
+		fmt.Printf("Login for '%s':		%s\n", service, entry.Login)
 	}
+	if entry.Host != "" {
+		fmt.Printf("Host for '%s':		%s\n", service, entry.Host)
+	}
+	if entry.Comment != "" {
+		fmt.Printf("Comment for '%s':		%s\n", service, entry.Comment)
+	}
+
+	fmt.Printf("📋 Password for '%s' copied to clipboard!\n", service)
+
 	return nil
 }

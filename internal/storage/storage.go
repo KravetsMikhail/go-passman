@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go-passman/internal/crypto"
 	"go-passman/internal/models"
+	"go-passman/internal/utils"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -29,24 +30,26 @@ func GetVaultPath() string {
 	return vaultPath
 }
 
-// LoadVault loads the vault from disk, decrypting if necessary
-func LoadVault() (*models.Vault, error) {
+// LoadVault loads the vault from disk, decrypting if necessary.
+// When the vault is encrypted, the password used for decryption is returned as second value
+// so callers can pass it to SaveVault when saving (avoids asking for password twice).
+func LoadVault() (*models.Vault, *string, error) {
 	if _, err := os.Stat(vaultPath); os.IsNotExist(err) {
-		return models.NewVault(), nil
+		return models.NewVault(), nil, nil
 	}
 
 	data, err := os.ReadFile(vaultPath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read vault: %w", err)
+		return nil, nil, fmt.Errorf("failed to read vault: %w", err)
 	}
 
 	// Try to parse as JSON first
 	var vault models.Vault
 	if err := json.Unmarshal(data, &vault); err == nil {
 		if vault.Encrypted {
-			password, err := readPassword("Vault is encrypted. Please enter your password: ")
+			password, err := utils.ReadPassword("Vault is encrypted. Please enter your password: ")
 			if err != nil {
-				return nil, fmt.Errorf("failed to read password: %w", err)
+				return nil, nil, fmt.Errorf("failed to read password: %w", err)
 			}
 
 			decrypted, err := crypto.Decrypt(password, string(data))
@@ -56,17 +59,17 @@ func LoadVault() (*models.Vault, error) {
 			}
 
 			if err := json.Unmarshal(decrypted, &vault); err != nil {
-				return nil, fmt.Errorf("failed to parse decrypted vault: %w", err)
+				return nil, nil, fmt.Errorf("failed to parse decrypted vault: %w", err)
 			}
-			return &vault, nil
+			return &vault, &password, nil
 		}
-		return &vault, nil
+		return &vault, nil, nil
 	}
 
 	// If JSON parsing fails, assume it's encrypted
-	password, err := readPassword("Vault seems encrypted or corrupted. Please enter password: ")
+	password, err := utils.ReadPassword("Vault seems encrypted or corrupted. Please enter password: ")
 	if err != nil {
-		return nil, fmt.Errorf("failed to read password: %w", err)
+		return nil, nil, fmt.Errorf("failed to read password: %w", err)
 	}
 
 	decrypted, err := crypto.Decrypt(password, string(data))
@@ -76,10 +79,10 @@ func LoadVault() (*models.Vault, error) {
 	}
 
 	if err := json.Unmarshal(decrypted, &vault); err != nil {
-		return nil, fmt.Errorf("failed to parse decrypted vault: %w", err)
+		return nil, nil, fmt.Errorf("failed to parse decrypted vault: %w", err)
 	}
 
-	return &vault, nil
+	return &vault, &password, nil
 }
 
 // SaveVault saves the vault to disk, encrypting if necessary
@@ -111,7 +114,7 @@ func SaveVault(vault *models.Vault, password *string) error {
 
 // OpenInEditor opens the vault in the specified editor
 func OpenInEditor(editor string) error {
-	vault, err := LoadVault()
+	vault, pwd, err := LoadVault()
 	if err != nil {
 		return err
 	}
@@ -154,41 +157,8 @@ func OpenInEditor(editor string) error {
 		return fmt.Errorf("invalid JSON in vault file: %w", err)
 	}
 
-	// Save the vault
-	return SaveVault(vault, nil)
-}
-
-// readPassword reads a password from stdin securely
-func readPassword(prompt string) (string, error) {
-	fmt.Print(prompt)
-
-	// Use stty to hide password input on Unix-like systems
-	cmd := exec.Command("stty", "-echo")
-	cmd.Stdin = os.Stdin
-	if err := cmd.Run(); err != nil {
-		// Fallback for Windows or if stty is not available
-		// Just read normally (not ideal but will work)
-		return readPasswordFallback()
-	}
-	//defer exec.Command("stty", "echo").Run()
-	defer func() {
-		cmd = exec.Command("stty", "echo")
-		cmd.Stdin = os.Stdin
-		cmd.Run()
-	}()
-
-	var password string
-	fmt.Scanln(&password)
-	fmt.Println() // New line after password
-
-	return password, nil
-}
-
-// readPasswordFallback reads password without hiding it (fallback for Windows)
-func readPasswordFallback() (string, error) {
-	var password string
-	fmt.Scanln(&password)
-	return password, nil
+	// Save the vault (pass password if vault was encrypted)
+	return SaveVault(vault, pwd)
 }
 
 // IsVaultEncrypted checks if the vault is encrypted

@@ -1,44 +1,47 @@
 package utils
 
 import (
+	"bufio"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
+
+	"golang.org/x/term"
 )
 
 // ReadInput reads a line of input from stdin
 func ReadInput(prompt string) (string, error) {
 	fmt.Print(prompt)
-	var input string
-	_, err := fmt.Scanln(&input)
+	//var input string
+	//_, err := fmt.Scanln(&input)
+	reader := bufio.NewReader(os.Stdin)
+	input, err := reader.ReadString('\n') // Reads entire line including spaces
+	input = strings.TrimSpace(input)      // Trim newline and spaces
 	return input, err
 }
 
-// ReadPassword reads a password securely
+// ReadPassword reads a password without echoing (hidden input).
+// Works on Windows, Linux, and macOS when stdin is a terminal.
+// Falls back to visible input if terminal is not available (e.g. redirected stdin).
 func ReadPassword(prompt string) (string, error) {
 	fmt.Print(prompt)
 
-	// Try to hide password input using stty (Unix-like systems)
-	cmd := exec.Command("stty", "-echo")
-	cmd.Stdin = os.Stdin
-	if err := cmd.Run(); err != nil {
-		// Fallback for Windows: just read normally
-		var password string
-		fmt.Scanln(&password)
-		return password, nil
+	fd := int(os.Stdin.Fd())
+	if term.IsTerminal(fd) {
+		bytePassword, err := term.ReadPassword(fd)
+		fmt.Println() // newline after hidden input
+		if err != nil {
+			return "", err
+		}
+		return string(bytePassword), nil
 	}
-	//defer exec.Command("stty", "echo").Run()
-	defer func() {
-		cmd = exec.Command("stty", "echo")
-		cmd.Stdin = os.Stdin
-		cmd.Run()
-	}()
 
+	// Fallback when stdin is not a terminal (e.g. pipe, redirect)
 	var password string
-	fmt.Scanln(&password)
-	fmt.Println()
-
+	_, err := fmt.Scanln(&password)
+	if err != nil {
+		return "", err
+	}
 	return password, nil
 }
 

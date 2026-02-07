@@ -21,7 +21,7 @@ func NewListCommand() *cobra.Command {
 }
 
 func handleList() error {
-	vault, err := storage.LoadVault()
+	vault, _, err := storage.LoadVault()
 	if err != nil {
 		return err
 	}
