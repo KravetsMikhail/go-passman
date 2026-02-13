@@ -3,8 +3,8 @@
 ================================================================================
 
 PROJECT NAME:        go-passman (Password Manager CLI)
-CURRENT VERSION:     0.2.0
-RELEASE DATE:        2026-02-07
+CURRENT VERSION:     0.3.0
+RELEASE DATE:        2026-02-13
 STATUS:              ✅ COMPLETE & PRODUCTION READY
 BUILD STATUS:        ✅ SUCCESS
 
@@ -377,8 +377,8 @@ Recommendation:               ✅ READY FOR PRODUCTION USE
 
 ================================================================================
 
-Version: 0.2.0
-Built: 2026-02-07
+Version: 0.3.0
+Built: 2026-02-13
 Status: ✅ Production Ready
 
 For more information, see the documentation files included with this project.

@@ -4,15 +4,19 @@ All notable changes to go-passman will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-02-13
+
 ### Added
 
+- **-w / --web**: run go-passman as a web server with a simple web UI. List, add, edit, delete entries and view password. Encrypted vault: unlock once in the browser. Server listens on 127.0.0.1:8080 (set `WEB_PORT` to change port).
+- **list -f / --filter**: filter output by name (substring, case-insensitive). Example: `list -f git` shows only entries whose name contains "git". Displayed numbers match the full list so `copy N` works as expected.
+- **list**: "Найдено X из Y" in the header (found X of Y entries).
 - **Update** and **Remove**: after each action the resulting list is shown; question **Continue? (y/n)** allows multiple updates or removals in one run. **30 second timeout** on "Continue?" — if no answer, the command exits (vault no longer held in memory).
 - **Add** (encrypted vault): vault password is asked **first**, then service name and other fields.
-- **Documentation**: explicit description of **running the program on Windows** (`.\go-passman.exe` from the project folder, or `go-passman` if in PATH); Linux/macOS `./go-passman`. README, QUICKSTART, INSTALL, EXAMPLES, and 00_START_HERE updated with Windows invocation and recent behavior.
-- **list -f / --filter**: filter output by name (substring, case-insensitive). Example: `list -f git` shows only entries whose name contains "git". Displayed numbers match the full list so `copy N` works as expected.
 - **Large vaults (100+ entries)**:
   - **list**: paginated by 20 entries per page; "Press Enter for next page (q to quit)". When stdout is not a terminal (e.g. `list > file`), all entries are printed without pagination.
   - **update** / **remove**: optional **filter by name** (substring, Enter = show all); when more than 25 entries, choice is paginated (n = next page, q = quit). Cancelling with q exits the update/remove loop.
+- **Documentation**: explicit description of **running the program on Windows** (`.\go-passman.exe` from the project folder, or `go-passman` if in PATH); Linux/macOS `./go-passman`. README, QUICKSTART, INSTALL, EXAMPLES, and 00_START_HERE updated with Windows invocation and recent behavior.
 
 ## [0.2.0] - 2026-02-07
 
@@ -195,6 +199,14 @@ MIT License - See LICENSE file for details
 ---
 
 ## Version History
+
+### 0.3.0 (2026-02-13)
+
+- Web UI: `-w` / `--web` runs server at http://127.0.0.1:8080
+- list: filter `-f`, "Найдено X из Y", pagination for large vaults
+- update/remove: multiple actions per run, filter and pagination, 30s timeout on Continue?
+- add: vault password first when encrypted
+- Docs: Windows invocation (.\go-passman.exe)
 
 ### 0.2.0 (2026-02-07)
 

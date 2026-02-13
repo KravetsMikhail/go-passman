@@ -114,7 +114,22 @@ go-passman status
 
 # Show vault path
 go-passman path
+
+# Run as web server (simple UI)
+go-passman -w
+# or: go-passman --web
+# Opens http://127.0.0.1:8080 (use WEB_PORT env to change port)
 ```
+
+### Web interface (screenshots)
+
+The web UI lets you list, add, edit, delete entries and view passwords. If the vault is encrypted, you unlock it once in the browser.
+
+| List of entries | Unlock (encrypted vault) |
+|-----------------|--------------------------|
+| ![List](docs/screenshots/web-list.png) | ![Unlock](docs/screenshots/web-unlock.png) |
+
+*To add or update screenshots: place `web-list.png`, `web-unlock.png` in `docs/screenshots/` (e.g. by running `go-passman -w` and capturing the browser). See `docs/screenshots/README.md`.*
 
 ## 🔐 Vault Format
 
