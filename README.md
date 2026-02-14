@@ -35,6 +35,9 @@ For a **smaller binary** (~7–8 MB instead of ~11 MB), strip debug info:
 `go build -ldflags="-s -w" -trimpath -o go-passman`  
 The build scripts (`build.bat` / `build.sh`) use these flags by default. Optional: [UPX](https://upx.github.io/) can compress the binary further (some antivirus may flag it).
 
+**Release builds for GitHub** (all platforms, version in filename):  
+`./build.sh release 0.3.0` or `build.bat release 0.3.0` — outputs to `dist/release-0.3.0/`. Or push a tag `v0.3.0` to trigger [GitHub Actions](.github/workflows/release.yml) to build and create a release. If the release does not appear, see [How to create a GitHub Release](docs/RELEASE_GITHUB.md).
+
 Optionally, you can move it to a location in your PATH or create a symlink.
 
 ## ▶️ Running the program
