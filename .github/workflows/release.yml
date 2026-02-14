@@ -47,17 +47,49 @@ jobs:
           echo "Built files:"
           ls -la dist/release-$VERSION/
 
+      - name: Create archives (binary with simple name + README)
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          RELEASE_DIR="dist/release-$VERSION"
+          STAGING="dist/.stage"
+          mkdir -p "$STAGING"
+          cp docs/RELEASE_README.txt "$STAGING/README.txt"
+          pack() {
+            local plat=$1
+            local src=$2
+            local simple=$3
+            local fmt=$4
+            cp "$RELEASE_DIR/$src" "$STAGING/$simple"
+            chmod +x "$STAGING/$simple" 2>/dev/null || true
+            if [ "$fmt" = "zip" ]; then
+              (cd "$STAGING" && zip -q "$RELEASE_DIR/go-passman-${VERSION}-${plat}.zip" "$simple" README.txt)
+            else
+              (cd "$STAGING" && tar czf "$RELEASE_DIR/go-passman-${VERSION}-${plat}.tar.gz" "$simple" README.txt)
+            fi
+            rm -f "$STAGING/$simple"
+          }
+          pack "windows-amd64" "go-passman-${VERSION}-windows-amd64.exe" "go-passman.exe" "zip"
+          pack "windows-arm64" "go-passman-${VERSION}-windows-arm64.exe" "go-passman.exe" "zip"
+          pack "linux-amd64" "go-passman-${VERSION}-linux-amd64" "go-passman" "tar.gz"
+          pack "linux-arm64" "go-passman-${VERSION}-linux-arm64" "go-passman" "tar.gz"
+          pack "linux-386" "go-passman-${VERSION}-linux-386" "go-passman" "tar.gz"
+          pack "darwin-amd64" "go-passman-${VERSION}-darwin-amd64" "go-passman" "tar.gz"
+          pack "darwin-arm64" "go-passman-${VERSION}-darwin-arm64" "go-passman" "tar.gz"
+          rm -rf "$STAGING"
+          echo "Archives:"
+          ls -la "$RELEASE_DIR"/*.zip "$RELEASE_DIR"/*.tar.gz 2>/dev/null || true
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-windows-amd64.exe
-            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-windows-arm64.exe
-            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-linux-amd64
-            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-linux-arm64
-            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-linux-386
-            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-darwin-amd64
-            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-darwin-arm64
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-windows-amd64.zip
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-windows-arm64.zip
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-linux-amd64.tar.gz
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-linux-arm64.tar.gz
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-linux-386.tar.gz
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-darwin-amd64.tar.gz
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-darwin-arm64.tar.gz
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

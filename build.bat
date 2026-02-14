@@ -93,8 +93,44 @@ go build -ldflags="-s -w" -trimpath -o %RELEASE_DIR%\%BINARY_NAME%-%VERSION%-dar
 echo Built darwin/arm64 (Apple Silicon)
 
 echo.
-echo Release builds: %RELEASE_DIR%\
-echo Upload the contents to GitHub Releases.
+echo Creating archives (binary + README)...
+set STAGING=%OUTPUT_DIR%\.stage
+if not exist %STAGING% mkdir %STAGING%
+copy /Y docs\RELEASE_README.txt %STAGING%\README.txt >nul
+
+copy /Y %RELEASE_DIR%\%BINARY_NAME%-%VERSION%-windows-amd64.exe %STAGING%\go-passman.exe >nul
+powershell -NoProfile -Command "Compress-Archive -Path '%STAGING%\go-passman.exe','%STAGING%\README.txt' -DestinationPath '%RELEASE_DIR%\%BINARY_NAME%-%VERSION%-windows-amd64.zip' -Force"
+del %STAGING%\go-passman.exe
+
+copy /Y %RELEASE_DIR%\%BINARY_NAME%-%VERSION%-windows-arm64.exe %STAGING%\go-passman.exe >nul
+powershell -NoProfile -Command "Compress-Archive -Path '%STAGING%\go-passman.exe','%STAGING%\README.txt' -DestinationPath '%RELEASE_DIR%\%BINARY_NAME%-%VERSION%-windows-arm64.zip' -Force"
+del %STAGING%\go-passman.exe
+
+copy /Y %RELEASE_DIR%\%BINARY_NAME%-%VERSION%-linux-amd64 %STAGING%\go-passman >nul
+powershell -NoProfile -Command "Compress-Archive -Path '%STAGING%\go-passman','%STAGING%\README.txt' -DestinationPath '%RELEASE_DIR%\%BINARY_NAME%-%VERSION%-linux-amd64.zip' -Force"
+del %STAGING%\go-passman
+
+copy /Y %RELEASE_DIR%\%BINARY_NAME%-%VERSION%-linux-arm64 %STAGING%\go-passman >nul
+powershell -NoProfile -Command "Compress-Archive -Path '%STAGING%\go-passman','%STAGING%\README.txt' -DestinationPath '%RELEASE_DIR%\%BINARY_NAME%-%VERSION%-linux-arm64.zip' -Force"
+del %STAGING%\go-passman
+
+copy /Y %RELEASE_DIR%\%BINARY_NAME%-%VERSION%-linux-386 %STAGING%\go-passman >nul
+powershell -NoProfile -Command "Compress-Archive -Path '%STAGING%\go-passman','%STAGING%\README.txt' -DestinationPath '%RELEASE_DIR%\%BINARY_NAME%-%VERSION%-linux-386.zip' -Force"
+del %STAGING%\go-passman
+
+copy /Y %RELEASE_DIR%\%BINARY_NAME%-%VERSION%-darwin-amd64 %STAGING%\go-passman >nul
+powershell -NoProfile -Command "Compress-Archive -Path '%STAGING%\go-passman','%STAGING%\README.txt' -DestinationPath '%RELEASE_DIR%\%BINARY_NAME%-%VERSION%-darwin-amd64.zip' -Force"
+del %STAGING%\go-passman
+
+copy /Y %RELEASE_DIR%\%BINARY_NAME%-%VERSION%-darwin-arm64 %STAGING%\go-passman >nul
+powershell -NoProfile -Command "Compress-Archive -Path '%STAGING%\go-passman','%STAGING%\README.txt' -DestinationPath '%RELEASE_DIR%\%BINARY_NAME%-%VERSION%-darwin-arm64.zip' -Force"
+del %STAGING%\go-passman
+
+rmdir /s /q %STAGING% 2>nul
+echo.
+echo Release archives: %RELEASE_DIR%\
+echo Each archive contains the app (simple name) + README.txt
+echo Upload the .zip files to GitHub Releases.
 goto end
 
 :clean
