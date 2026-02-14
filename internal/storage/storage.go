@@ -30,10 +30,21 @@ func GetVaultPath() string {
 	return vaultPath
 }
 
-// LoadVault loads the vault from disk, decrypting if necessary.
+// LoadVault loads the vault from disk, decrypting if necessary (prompts for password on terminal).
 // When the vault is encrypted, the password used for decryption is returned as second value
 // so callers can pass it to SaveVault when saving (avoids asking for password twice).
 func LoadVault() (*models.Vault, *string, error) {
+	return loadVaultWithPassword(nil, true)
+}
+
+// LoadVaultWithPassword loads the vault using the given password when encrypted.
+// If vault is encrypted and password is nil, returns (nil, nil, err) so the caller can ask for password (e.g. web unlock form).
+// If vault is encrypted and password is provided, uses it and returns (vault, &password, nil).
+func LoadVaultWithPassword(password *string) (*models.Vault, *string, error) {
+	return loadVaultWithPassword(password, false)
+}
+
+func loadVaultWithPassword(password *string, promptIfEncrypted bool) (*models.Vault, *string, error) {
 	if _, err := os.Stat(vaultPath); os.IsNotExist(err) {
 		return models.NewVault(), nil, nil
 	}
@@ -43,46 +54,65 @@ func LoadVault() (*models.Vault, *string, error) {
 		return nil, nil, fmt.Errorf("failed to read vault: %w", err)
 	}
 
-	// Try to parse as JSON first
 	var vault models.Vault
 	if err := json.Unmarshal(data, &vault); err == nil {
-		if vault.Encrypted {
-			password, err := utils.ReadPassword("Vault is encrypted. Please enter your password: ")
-			if err != nil {
-				return nil, nil, fmt.Errorf("failed to read password: %w", err)
+		if !vault.Encrypted {
+			return &vault, nil, nil
+		}
+		// Encrypted JSON metadata read; body is still encrypted - try decrypt with provided or prompt
+		var pwd string
+		if password != nil {
+			pwd = *password
+		} else if promptIfEncrypted {
+			var errPwd error
+			pwd, errPwd = utils.ReadPassword("Vault is encrypted. Please enter your password: ")
+			if errPwd != nil {
+				return nil, nil, fmt.Errorf("failed to read password: %w", errPwd)
 			}
-
-			decrypted, err := crypto.Decrypt(password, string(data))
-			if err != nil {
+		} else {
+			return nil, nil, fmt.Errorf("vault is encrypted: password required")
+		}
+		decrypted, err := crypto.Decrypt(pwd, string(data))
+		if err != nil {
+			if promptIfEncrypted {
 				fmt.Fprintf(os.Stderr, "Error decrypting vault: %v\n", err)
 				os.Exit(1)
 			}
-
-			if err := json.Unmarshal(decrypted, &vault); err != nil {
-				return nil, nil, fmt.Errorf("failed to parse decrypted vault: %w", err)
-			}
-			return &vault, &password, nil
+			return nil, nil, fmt.Errorf("decryption failed: %w", err)
 		}
-		return &vault, nil, nil
+		if err := json.Unmarshal(decrypted, &vault); err != nil {
+			return nil, nil, fmt.Errorf("failed to parse decrypted vault: %w", err)
+		}
+		return &vault, &pwd, nil
 	}
 
-	// If JSON parsing fails, assume it's encrypted
-	password, err := utils.ReadPassword("Vault seems encrypted or corrupted. Please enter password: ")
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to read password: %w", err)
+	// Invalid JSON — assume encrypted blob
+	if password != nil {
+		decrypted, err := crypto.Decrypt(*password, string(data))
+		if err != nil {
+			return nil, nil, fmt.Errorf("decryption failed: %w", err)
+		}
+		if err := json.Unmarshal(decrypted, &vault); err != nil {
+			return nil, nil, fmt.Errorf("failed to parse decrypted vault: %w", err)
+		}
+		return &vault, password, nil
 	}
-
-	decrypted, err := crypto.Decrypt(password, string(data))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error decrypting vault: %v\n", err)
-		os.Exit(1)
+	if promptIfEncrypted {
+		pwd, errPwd := utils.ReadPassword("Vault seems encrypted or corrupted. Please enter password: ")
+		if errPwd != nil {
+			return nil, nil, fmt.Errorf("failed to read password: %w", errPwd)
+		}
+		decrypted, err := crypto.Decrypt(pwd, string(data))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error decrypting vault: %v\n", err)
+			os.Exit(1)
+		}
+		if err := json.Unmarshal(decrypted, &vault); err != nil {
+			return nil, nil, fmt.Errorf("failed to parse decrypted vault: %w", err)
+		}
+		return &vault, &pwd, nil
 	}
-
-	if err := json.Unmarshal(decrypted, &vault); err != nil {
-		return nil, nil, fmt.Errorf("failed to parse decrypted vault: %w", err)
-	}
-
-	return &vault, &password, nil
+	return nil, nil, fmt.Errorf("vault is encrypted: password required")
 }
 
 // SaveVault saves the vault to disk, encrypting if necessary

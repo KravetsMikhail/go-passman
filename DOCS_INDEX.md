@@ -160,7 +160,7 @@ A comprehensive guide to all documentation in the go-passman project.
 **Best for**: Users upgrading or reviewing changes  
 **Covers**:
 
-- Version 0.2.0 features
+- Version 0.2.0 and 0.3.0 features
 - Major changes from  version
 - Architecture changes
 - Build system changes
@@ -369,6 +369,6 @@ If you can't find what you need:
 
 ---
 
-**Last Updated**: 2026-02-07  
-**Version**: go-passman 0.2.0 (Go)  
+**Last Updated**: 2026-02-13  
+**Version**: go-passman 0.3.0 (Go)  
 **Status**: Complete and up-to-date

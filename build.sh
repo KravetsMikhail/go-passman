@@ -20,8 +20,8 @@ build_target() {
     local GOARCH=$2
     local OUTPUT_NAME=$3
     
-    echo -e "${BLUE}Building for ${GOOS}/${GOARCH}...${NC}"
-    GOOS=$GOOS GOARCH=$GOARCH go build -o "${OUTPUT_DIR}/${OUTPUT_NAME}"
+    echo -e "${BLUE}Building for ${GOOS}/${GOARCH} (slim)...${NC}"
+    GOOS=$GOOS GOARCH=$GOARCH go build -ldflags="-s -w" -trimpath -o "${OUTPUT_DIR}/${OUTPUT_NAME}"
     echo -e "${GREEN}✓ Built: ${OUTPUT_DIR}/${OUTPUT_NAME}${NC}"
 }
 

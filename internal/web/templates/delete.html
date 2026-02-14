@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>go-passman — Delete</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; max-width: 400px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.25rem; }
+    .btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; text-decoration: none; display: inline-block; margin-right: 0.5rem; }
+    .btn-danger { background: #dc3545; color: #fff; }
+    .btn-danger:hover { background: #bb2d3b; }
+    .btn-secondary { background: #6c757d; color: #fff; }
+    .btn-secondary:hover { background: #5c636a; }
+  </style>
+</head>
+<body>
+  <h1>🔐 Delete entry</h1>
+  <p>Delete <strong>{{.}}</strong>?</p>
+  <form method="post" style="display: inline;">
+    <button type="submit" class="btn btn-danger">Delete</button>
+  </form>
+  <a class="btn btn-secondary" href="/">Cancel</a>
+</body>
+</html>
