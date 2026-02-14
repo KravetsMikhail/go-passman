@@ -51,6 +51,7 @@ jobs:
         run: |
           VERSION=${{ steps.version.outputs.VERSION }}
           RELEASE_DIR="dist/release-$VERSION"
+          RELEASE_ABS="$(cd "$RELEASE_DIR" && pwd)"
           STAGING="dist/.stage"
           mkdir -p "$STAGING"
           cp docs/RELEASE_README.txt "$STAGING/README.txt"
@@ -62,9 +63,9 @@ jobs:
             cp "$RELEASE_DIR/$src" "$STAGING/$simple"
             chmod +x "$STAGING/$simple" 2>/dev/null || true
             if [ "$fmt" = "zip" ]; then
-              (cd "$STAGING" && zip -q "$RELEASE_DIR/go-passman-${VERSION}-${plat}.zip" "$simple" README.txt)
+              (cd "$STAGING" && zip -q "$RELEASE_ABS/go-passman-${VERSION}-${plat}.zip" "$simple" README.txt)
             else
-              (cd "$STAGING" && tar czf "$RELEASE_DIR/go-passman-${VERSION}-${plat}.tar.gz" "$simple" README.txt)
+              (cd "$STAGING" && tar czf "$RELEASE_ABS/go-passman-${VERSION}-${plat}.tar.gz" "$simple" README.txt)
             fi
             rm -f "$STAGING/$simple"
           }
