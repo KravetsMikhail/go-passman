@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # Build script for go-passman
-# Usage: ./build.sh [target]
-# Targets: linux, darwin, windows, all, clean
+# Usage: ./build.sh [target] [version]
+# Targets: linux, darwin, windows, all, release, clean
 
 set -e
 
 BINARY_NAME="go-passman"
 OUTPUT_DIR="dist"
+VERSION="${2:-0.3.0}"   # used by release target
 
 # Colors
 RED='\033[0;31m'
@@ -32,7 +33,7 @@ clean() {
 }
 
 help() {
-    echo "Usage: $0 [target]"
+    echo "Usage: $0 [target] [version]"
     echo ""
     echo "Targets:"
     echo "  linux       - Build for Linux (x86_64)"
@@ -40,6 +41,8 @@ help() {
     echo "  darwin-arm  - Build for macOS (Apple Silicon)"
     echo "  windows     - Build for Windows"
     echo "  all         - Build for all platforms"
+    echo "  release     - Build for GitHub release (all platforms, version in name)"
+    echo "  release 0.3.0 - Same with explicit version"
     echo "  clean       - Clean build artifacts"
     echo "  help        - Show this help message"
 }
@@ -66,6 +69,20 @@ case "${1:-help}" in
         build_target "darwin" "arm64" "${BINARY_NAME}-darwin-arm64"
         build_target "windows" "amd64" "${BINARY_NAME}-windows-amd64.exe"
         echo -e "${GREEN}✓ All builds complete!${NC}"
+        ;;
+    release)
+        RELEASE_SUBDIR="release-${VERSION}"
+        mkdir -p "${OUTPUT_DIR}/${RELEASE_SUBDIR}"
+        echo -e "${BLUE}Building release ${VERSION} for GitHub...${NC}"
+        build_target "windows" "amd64" "${RELEASE_SUBDIR}/${BINARY_NAME}-${VERSION}-windows-amd64.exe"
+        build_target "windows" "arm64" "${RELEASE_SUBDIR}/${BINARY_NAME}-${VERSION}-windows-arm64.exe"
+        build_target "linux" "amd64" "${RELEASE_SUBDIR}/${BINARY_NAME}-${VERSION}-linux-amd64"
+        build_target "linux" "arm64" "${RELEASE_SUBDIR}/${BINARY_NAME}-${VERSION}-linux-arm64"
+        build_target "linux" "386" "${RELEASE_SUBDIR}/${BINARY_NAME}-${VERSION}-linux-386"
+        build_target "darwin" "amd64" "${RELEASE_SUBDIR}/${BINARY_NAME}-${VERSION}-darwin-amd64"
+        build_target "darwin" "arm64" "${RELEASE_SUBDIR}/${BINARY_NAME}-${VERSION}-darwin-arm64"
+        echo -e "${GREEN}✓ Release builds: ${OUTPUT_DIR}/${RELEASE_SUBDIR}/${NC}"
+        echo "Upload the contents to GitHub Releases."
         ;;
     clean)
         clean

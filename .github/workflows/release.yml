@@ -1,0 +1,63 @@
+# Build release binaries on tag push (e.g. v0.3.0)
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.19'
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Build
+        run: |
+          export GO_LDFLAGS="-s -w"
+          VERSION=${{ steps.version.outputs.VERSION }}
+          mkdir -p dist/release-$VERSION
+          for target in \
+            "windows/amd64:go-passman-${VERSION}-windows-amd64.exe" \
+            "windows/arm64:go-passman-${VERSION}-windows-arm64.exe" \
+            "linux/amd64:go-passman-${VERSION}-linux-amd64" \
+            "linux/arm64:go-passman-${VERSION}-linux-arm64" \
+            "linux/386:go-passman-${VERSION}-linux-386" \
+            "darwin/amd64:go-passman-${VERSION}-darwin-amd64" \
+            "darwin/arm64:go-passman-${VERSION}-darwin-arm64"; do
+            GOOS="${target%%/*}"
+            GOARCH="${target#*/}"
+            GOARCH="${GOARCH%%:*}"
+            OUT="${target#*:}"
+            echo "Building $GOOS/$GOARCH -> $OUT"
+            GOOS=$GOOS GOARCH=$GOARCH go build -ldflags="$GO_LDFLAGS" -trimpath -o "dist/release-$VERSION/$OUT" .
+          done
+          echo "Built files:"
+          ls -la dist/release-$VERSION/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-windows-amd64.exe
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-windows-arm64.exe
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-linux-amd64
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-linux-arm64
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-linux-386
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-darwin-amd64
+            dist/release-${{ steps.version.outputs.VERSION }}/go-passman-${{ steps.version.outputs.VERSION }}-darwin-arm64
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
