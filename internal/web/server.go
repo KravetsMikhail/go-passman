@@ -27,6 +27,14 @@ var (
 func init() {
 	tmpl = template.Must(template.New("").Funcs(template.FuncMap{
 		"urlquery": url.QueryEscape,
+		"add":      func(a, b int) int { return a + b },
+		"sub":      func(a, b int) int { return a - b },
+		"iterate":  func(start, end int) (out []int) {
+			for i := start; i <= end; i++ {
+				out = append(out, i)
+			}
+			return out
+		},
 	}).ParseFS(templatesFS, "templates/*.html"))
 }
 
@@ -65,6 +73,7 @@ func Run() {
 		addr = "127.0.0.1:" + p
 	}
 	http.HandleFunc("/", listHandler)
+	http.HandleFunc("/logout", logoutHandler)
 	http.HandleFunc("/unlock", unlockHandler)
 	http.HandleFunc("/add", addHandler)
 	http.HandleFunc("/edit", editHandler)

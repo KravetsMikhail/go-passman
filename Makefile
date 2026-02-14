@@ -13,14 +13,16 @@ help:
 	@echo "  fmt         - Format code"
 	@echo "  lint        - Run linter"
 
+LDFLAGS=-s -w
+
 build:
-	@echo "Building $(BINARY_NAME)..."
-	@go build -o $(BINARY_WIN)
+	@echo "Building $(BINARY_NAME) (slim)..."
+	@go build -ldflags="$(LDFLAGS)" -trimpath -o $(BINARY_WIN)
 	@echo "Build complete: $(BINARY_WIN)"
 
 build-unix:
-	@echo "Building $(BINARY_UNIX)..."
-	@go build -o $(BINARY_UNIX)
+	@echo "Building $(BINARY_UNIX) (slim)..."
+	@go build -ldflags="$(LDFLAGS)" -trimpath -o $(BINARY_UNIX)
 	@echo "Build complete: $(BINARY_UNIX)"
 
 run: build

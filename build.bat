@@ -15,8 +15,8 @@ if "%1"=="help" goto help
 goto unknown
 
 :build_current
-echo Building for current platform...
-go build -o %OUTPUT_DIR%\%BINARY_NAME%.exe
+echo Building for current platform (slim)...
+go build -ldflags="-s -w" -trimpath -o %OUTPUT_DIR%\%BINARY_NAME%.exe
 echo Build complete: %OUTPUT_DIR%\%BINARY_NAME%.exe
 goto end
 
@@ -24,25 +24,25 @@ goto end
 echo Building for Windows (amd64)...
 set GOOS=windows
 set GOARCH=amd64
-go build -o %OUTPUT_DIR%\%BINARY_NAME%-windows-amd64.exe
+go build -ldflags="-s -w" -trimpath -o %OUTPUT_DIR%\%BINARY_NAME%-windows-amd64.exe
 echo.
 
 echo Building for Linux (amd64)...
 set GOOS=linux
 set GOARCH=amd64
-go build -o %OUTPUT_DIR%\%BINARY_NAME%-linux-amd64
+go build -ldflags="-s -w" -trimpath -o %OUTPUT_DIR%\%BINARY_NAME%-linux-amd64
 echo.
 
 echo Building for macOS (Intel)...
 set GOOS=darwin
 set GOARCH=amd64
-go build -o %OUTPUT_DIR%\%BINARY_NAME%-darwin-amd64
+go build -ldflags="-s -w" -trimpath -o %OUTPUT_DIR%\%BINARY_NAME%-darwin-amd64
 echo.
 
 echo Building for macOS (Apple Silicon)...
 set GOOS=darwin
 set GOARCH=arm64
-go build -o %OUTPUT_DIR%\%BINARY_NAME%-darwin-arm64
+go build -ldflags="-s -w" -trimpath -o %OUTPUT_DIR%\%BINARY_NAME%-darwin-arm64
 echo.
 
 echo All builds complete!

@@ -13,6 +13,7 @@ Store, manage, encrypt, and decrypt passwords from your terminal.
 - **Update**: prompt shows current value; **Enter** = keep, type new = replace; after update, **new values** are printed. After each action the list is shown and **Continue?** lets you do multiple updates in one run (30s timeout).
 - **Remove**: select from list; after each removal the list is shown and **Continue?** for more (30s timeout).
 - **Add** (encrypted vault): vault password is asked first, then service name and other fields.
+- **Web interface** (`go-passman -w`): manage passwords in the browser — list with search (all fields), pagination for large vaults, add/edit/delete and show password; encrypted vault unlocks once per session.
 - Hidden password input (Windows, Linux, macOS); terminal echo restored on Ctrl+C
 - Open the vault in any text editor
 - Cross-platform (Linux, macOS, Windows)
@@ -29,6 +30,10 @@ go build -o go-passman
 ```
 
 You'll find the compiled binary as `go-passman` (or `go-passman.exe` on Windows).
+
+For a **smaller binary** (~7–8 MB instead of ~11 MB), strip debug info:  
+`go build -ldflags="-s -w" -trimpath -o go-passman`  
+The build scripts (`build.bat` / `build.sh`) use these flags by default. Optional: [UPX](https://upx.github.io/) can compress the binary further (some antivirus may flag it).
 
 Optionally, you can move it to a location in your PATH or create a symlink.
 
@@ -125,11 +130,18 @@ go-passman -w
 
 The web UI lets you list, add, edit, delete entries and view passwords. If the vault is encrypted, you unlock it once in the browser.
 
-| List of entries | Unlock (encrypted vault) |
-|-----------------|--------------------------|
-| ![List](docs/screenshots/web-list.png) | ![Unlock](docs/screenshots/web-unlock.png) |
+| Unlock (encrypted vault) |
+|--------------------------|
+| ![Unlock](docs/screenshots/web-unlock.png) |
 
-*To add or update screenshots: place `web-list.png`, `web-unlock.png` in `docs/screenshots/` (e.g. by running `go-passman -w` and capturing the browser). See `docs/screenshots/README.md`.*
+| List of entries |
+|-----------------|
+| ![List](docs/screenshots/web-list.png) |
+
+| Add entry |
+|--------------------------|
+| ![Add](docs/screenshots/web-add.png) |
+
 
 ## 🔐 Vault Format
 

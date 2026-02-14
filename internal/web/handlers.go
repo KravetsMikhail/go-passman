@@ -3,15 +3,23 @@ package web
 import (
 	"net/http"
 	"sort"
+	"strconv"
 	"strings"
 
 	"go-passman/internal/models"
 	"go-passman/internal/storage"
 )
 
+const listPerPage = 20
+
 type listData struct {
-	Entries []listEntry
-	Total   int
+	Entries      []listEntry
+	Total        int   // total in vault
+	TotalFiltered int   // after search
+	Query        string
+	Page         int
+	TotalPages   int
+	PerPage      int
 }
 
 type listEntry struct {
@@ -36,10 +44,10 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 		names = append(names, n)
 	}
 	sort.Strings(names)
-	entries := make([]listEntry, 0, len(names))
+	all := make([]listEntry, 0, len(names))
 	for i, name := range names {
 		e := v.Entries[name]
-		entries = append(entries, listEntry{
+		all = append(all, listEntry{
 			Num:     i + 1,
 			Name:    name,
 			Login:   e.Login,
@@ -47,7 +55,70 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 			Comment: e.Comment,
 		})
 	}
-	tmpl.ExecuteTemplate(w, "list.html", listData{Entries: entries, Total: len(entries)})
+
+	query := strings.TrimSpace(r.URL.Query().Get("q"))
+	filtered := all
+	if query != "" {
+		q := strings.ToLower(query)
+		filtered = make([]listEntry, 0)
+		for i, e := range all {
+			if strings.Contains(strings.ToLower(e.Name), q) ||
+				strings.Contains(strings.ToLower(e.Login), q) ||
+				strings.Contains(strings.ToLower(e.Host), q) ||
+				strings.Contains(strings.ToLower(e.Comment), q) {
+				filtered = append(filtered, listEntry{
+					Num: i + 1, Name: e.Name, Login: e.Login, Host: e.Host, Comment: e.Comment,
+				})
+			}
+		}
+		// renumber filtered list 1..n
+		for i := range filtered {
+			filtered[i].Num = i + 1
+		}
+	}
+
+	totalFiltered := len(filtered)
+	totalPages := 1
+	if totalFiltered > listPerPage {
+		totalPages = (totalFiltered + listPerPage - 1) / listPerPage
+	}
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page < 1 {
+		page = 1
+	}
+	if page > totalPages {
+		page = totalPages
+	}
+
+	start := (page - 1) * listPerPage
+	end := start + listPerPage
+	if end > totalFiltered {
+		end = totalFiltered
+	}
+	pageEntries := filtered[start:end]
+	// display numbers on page (global index in filtered list)
+	for i := range pageEntries {
+		pageEntries[i].Num = start + i + 1
+	}
+
+	tmpl.ExecuteTemplate(w, "list.html", listData{
+		Entries:       pageEntries,
+		Total:         len(all),
+		TotalFiltered: totalFiltered,
+		Query:         query,
+		Page:         page,
+		TotalPages:   totalPages,
+		PerPage:      listPerPage,
+	})
+}
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+	vaultMu.Lock()
+	vault = nil
+	vaultPwd = nil
+	vaultPwdStored = ""
+	vaultMu.Unlock()
+	http.Redirect(w, r, "/unlock", http.StatusFound)
 }
 
 func unlockHandler(w http.ResponseWriter, r *http.Request) {
