@@ -81,6 +81,9 @@ func handleAddManual() error {
 	}
 
 	fmt.Printf("✅ Password for '%s' saved.\n", service)
+	if !vault.Encrypted && len(vault.Entries) == 1 {
+		fmt.Println("💡 Tip: run 'go-passman encrypt' to protect your vault with a master password.")
+	}
 	return nil
 }
 
@@ -138,6 +141,8 @@ func handleAddGenerate() error {
 	} else {
 		fmt.Printf("✅ Password for '%s' saved and copied to clipboard.\n", service)
 	}
-
+	if !vault.Encrypted && len(vault.Entries) == 1 {
+		fmt.Println("💡 Tip: run 'go-passman encrypt' to protect your vault with a master password.")
+	}
 	return nil
 }

@@ -72,7 +72,8 @@ case "${1:-help}" in
         ;;
     release)
         RELEASE_SUBDIR="release-${VERSION}"
-        mkdir -p "${OUTPUT_DIR}/${RELEASE_SUBDIR}"
+        RELEASE_DIR="${OUTPUT_DIR}/${RELEASE_SUBDIR}"
+        mkdir -p "${RELEASE_DIR}"
         echo -e "${BLUE}Building release ${VERSION} for GitHub...${NC}"
         build_target "windows" "amd64" "${RELEASE_SUBDIR}/${BINARY_NAME}-${VERSION}-windows-amd64.exe"
         build_target "windows" "arm64" "${RELEASE_SUBDIR}/${BINARY_NAME}-${VERSION}-windows-arm64.exe"
@@ -81,8 +82,37 @@ case "${1:-help}" in
         build_target "linux" "386" "${RELEASE_SUBDIR}/${BINARY_NAME}-${VERSION}-linux-386"
         build_target "darwin" "amd64" "${RELEASE_SUBDIR}/${BINARY_NAME}-${VERSION}-darwin-amd64"
         build_target "darwin" "arm64" "${RELEASE_SUBDIR}/${BINARY_NAME}-${VERSION}-darwin-arm64"
-        echo -e "${GREEN}✓ Release builds: ${OUTPUT_DIR}/${RELEASE_SUBDIR}/${NC}"
-        echo "Upload the contents to GitHub Releases."
+        echo -e "${BLUE}Creating archives (binary + README)...${NC}"
+        STAGING="${OUTPUT_DIR}/.stage"
+        mkdir -p "${STAGING}"
+        cp "docs/RELEASE_README.txt" "${STAGING}/README.txt"
+        for pair in \
+          "windows-amd64:${BINARY_NAME}-${VERSION}-windows-amd64.exe:go-passman.exe:zip" \
+          "windows-arm64:${BINARY_NAME}-${VERSION}-windows-arm64.exe:go-passman.exe:zip" \
+          "linux-amd64:${BINARY_NAME}-${VERSION}-linux-amd64:go-passman:tar.gz" \
+          "linux-arm64:${BINARY_NAME}-${VERSION}-linux-arm64:go-passman:tar.gz" \
+          "linux-386:${BINARY_NAME}-${VERSION}-linux-386:go-passman:tar.gz" \
+          "darwin-amd64:${BINARY_NAME}-${VERSION}-darwin-amd64:go-passman:tar.gz" \
+          "darwin-arm64:${BINARY_NAME}-${VERSION}-darwin-arm64:go-passman:tar.gz"; do
+          plat="${pair%%:*}"
+          rest="${pair#*:}"
+          src="${rest%%:*}"
+          rest="${rest#*:}"
+          simple="${rest%%:*}"
+          fmt="${rest#*:}"
+          cp "${RELEASE_DIR}/${src}" "${STAGING}/${simple}"
+          chmod +x "${STAGING}/${simple}" 2>/dev/null || true
+          if [ "$fmt" = "zip" ]; then
+            (cd "${STAGING}" && zip -q "${RELEASE_DIR}/${BINARY_NAME}-${VERSION}-${plat}.zip" "${simple}" README.txt)
+          else
+            (cd "${STAGING}" && tar czf "${RELEASE_DIR}/${BINARY_NAME}-${VERSION}-${plat}.tar.gz" "${simple}" README.txt)
+          fi
+          rm -f "${STAGING}/${simple}"
+        done
+        rm -rf "${STAGING}"
+        echo -e "${GREEN}✓ Release archives: ${RELEASE_DIR}/${NC}"
+        echo "  (each archive contains the app with simple name + README.txt)"
+        echo "Upload the .zip and .tar.gz files to GitHub Releases."
         ;;
     clean)
         clean
