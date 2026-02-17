@@ -17,7 +17,7 @@ func NewRootCommand() *cobra.Command {
 		Use:     "go-passman",
 		Short:   "A simple CLI password manager",
 		Long:    "A simple and secure CLI password manager. Store, manage, encrypt, and decrypt passwords from your terminal.",
-		Version: "0.3.0",
+		Version: "0.3.1",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if runWeb {
 				return

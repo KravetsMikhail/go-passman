@@ -13,7 +13,7 @@ Store, manage, encrypt, and decrypt passwords from your terminal.
 - **Update**: prompt shows current value; **Enter** = keep, type new = replace; after update, **new values** are printed. After each action the list is shown and **Continue?** lets you do multiple updates in one run (30s timeout).
 - **Remove**: select from list; after each removal the list is shown and **Continue?** for more (30s timeout).
 - **Add** (encrypted vault): vault password is asked first, then service name and other fields.
-- **Web interface** (`go-passman -w`): manage passwords in the browser — list with search (all fields), pagination for large vaults, add/edit/delete and show password; encrypted vault unlocks once per session.
+- **Web interface** (`go-passman -w`): manage passwords in the browser — list with search (all fields), pagination for large vaults, add/edit/delete and show password; encrypted vault unlocks once per session. **Inactivity timer**: after N minutes without activity → auto-lock and redirect to unlock (default 5 min, set `INACTIVITY_MINUTES`).
 - Hidden password input (Windows, Linux, macOS); terminal echo restored on Ctrl+C
 - Open the vault in any text editor
 - Cross-platform (Linux, macOS, Windows)
@@ -124,11 +124,12 @@ go-passman path
 go-passman -w
 # or: go-passman --web
 # Opens http://127.0.0.1:8080 (use WEB_PORT env to change port)
+# Inactivity timer: after N min without activity → redirect to unlock (set INACTIVITY_MINUTES, default 5)
 ```
 
 ### Web interface (screenshots)
 
-The web UI lets you list, add, edit, delete entries and view passwords. If the vault is encrypted, you unlock it once in the browser.
+The web UI lets you list, add, edit, delete entries and view passwords. If the vault is encrypted, you unlock it once in the browser. After **N minutes of inactivity** (mouse, keyboard, scroll), the session is locked and you are redirected to the unlock page. Default: 5 minutes. Set `INACTIVITY_MINUTES` env var to change.
 
 | Unlock (encrypted vault) |
 |--------------------------|

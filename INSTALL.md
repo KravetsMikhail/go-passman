@@ -4,8 +4,8 @@ This guide provides detailed instructions for installing and using go-passman on
 
 ## Prerequisites
 
-- Go 1.19 or higher
-- Git (for cloning the repository)
+- **Method 1 (Build from Source):** Go 1.19 or higher, Git
+- **Method 2 (GitHub Releases):** none (just download and run)
 - Basic command-line knowledge
 
 ## Installation Methods
@@ -101,17 +101,78 @@ This guide provides detailed instructions for installing and using go-passman on
    go-passman --help
    ```
 
-### Method 2: Pre-built Binaries
+### Method 2: Download from GitHub Releases
 
-If pre-built binaries are available:
+The simplest way to install without building — download a pre-built binary for your platform.
 
-1. Download the appropriate binary for your platform from releases
-2. Extract and mark as executable:
+**1. Go to [Releases](https://github.com/KravetsMikhail/go-passman/releases)**
+
+**2. Download the appropriate file:**
+
+| Platform | File |
+|----------|------|
+| Windows (x64) | `go-passman-windows-amd64.exe` |
+| Linux (x64) | `go-passman-linux-amd64` |
+| macOS Intel | `go-passman-darwin-amd64` |
+| macOS Apple Silicon (M1/M2/M3) | `go-passman-darwin-arm64` |
+
+**3. Install and run**
+
+#### Windows
+
+1. Download `go-passman-windows-amd64.exe`
+2. Move to a folder (e.g. `C:\Programs\go-passman\` or your project folder)
+3. Rename to `go-passman.exe` (optional)
+4. Run from Command Prompt or PowerShell:
+
+   ```batch
+   .\go-passman.exe --help
+   .\go-passman.exe add
+   ```
+
+5. **(Optional)** Add the folder to PATH to run `go-passman` from anywhere
+
+#### Linux
+
+1. Download `go-passman-linux-amd64`
+2. Make executable and run:
+
    ```bash
-   # Linux/macOS
    chmod +x go-passman-linux-amd64
    ./go-passman-linux-amd64 --help
    ```
+
+3. **(Optional)** Install system-wide:
+
+   ```bash
+   sudo mv go-passman-linux-amd64 /usr/local/bin/go-passman
+   go-passman --help
+   ```
+
+#### macOS
+
+1. Download `go-passman-darwin-amd64` (Intel) or `go-passman-darwin-arm64` (Apple Silicon)
+2. Make executable and run:
+
+   ```bash
+   chmod +x go-passman-darwin-arm64
+   ./go-passman-darwin-arm64 --help
+   ```
+
+3. **(Optional)** If macOS blocks the binary:
+
+   ```bash
+   xattr -d com.apple.quarantine go-passman-darwin-arm64
+   ```
+
+4. **(Optional)** Install system-wide:
+
+   ```bash
+   sudo mv go-passman-darwin-arm64 /usr/local/bin/go-passman
+   go-passman --help
+   ```
+
+**Note:** The vault file (`vault.json`) is created in the **same directory as the executable**. Use `go-passman path` to see where it is stored.
 
 ### Method 3: Using make
 
@@ -182,12 +243,10 @@ If you move the executable to a different location:
    cp <vault-path>/vault.json ./vault.json.backup
    ```
 
-2. **Build new version**
+2. **Update the binary**
 
-   ```bash
-   git pull origin main
-   go build -o go-passman
-   ```
+   - **From releases:** Download the new version from [GitHub Releases](https://github.com/KravetsMikhail/go-passman/releases) and replace the old executable
+   - **From source:** `git pull origin main` and `go build -o go-passman`
 
 3. **Test new version**
 

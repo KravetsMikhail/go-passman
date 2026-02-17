@@ -16,8 +16,27 @@
 <body>
   <h1>🔐 {{.Name}}</h1>
   <p><strong>Password:</strong></p>
-  <div class="password" id="pw">{{.Password}}</div>
-  <button type="button" class="btn" onclick="navigator.clipboard.writeText(document.getElementById('pw').innerText)">Copy to clipboard</button>
+  <div class="password" id="pw" data-password="{{.Password}}" aria-live="polite">••••••••••</div>
+  <button type="button" class="btn" id="toggle">Show</button>
+  <button type="button" class="btn" id="copy">Copy to clipboard</button>
   <a class="btn" href="/" style="margin-left: 0.5rem;">Back to list</a>
+  <script>
+    (function(){
+      var el = document.getElementById('pw');
+      var toggle = document.getElementById('toggle');
+      var copyBtn = document.getElementById('copy');
+      var realPw = el.getAttribute('data-password') || '';
+      var visible = false;
+      toggle.addEventListener('click', function(){
+        visible = !visible;
+        el.textContent = visible ? realPw : '••••••••••';
+        toggle.textContent = visible ? 'Hide' : 'Show';
+      });
+      copyBtn.addEventListener('click', function(){
+        navigator.clipboard.writeText(realPw);
+      });
+    })();
+  </script>
+  {{template "inactivity" .}}
 </body>
 </html>

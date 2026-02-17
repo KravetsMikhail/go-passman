@@ -234,6 +234,6 @@ MIT License - See LICENSE file for details
 
 ---
 
-**Version**: 0.3.0  
+**Version**: 0.3.1  
 **Built**: 2026-02-13  
 **Status**: ✅ Production Ready

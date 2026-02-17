@@ -1,0 +1,18 @@
+{{define "inactivity"}}
+<script>
+(function(){
+  var mins = {{inactivityMinutes}};
+  if (!mins || mins < 1) return;
+  var ms = mins * 60 * 1000;
+  var t;
+  function reset() {
+    clearTimeout(t);
+    t = setTimeout(function(){ window.location.href = "/logout"; }, ms);
+  }
+  reset();
+  ["mousedown","keydown","scroll","touchstart"].forEach(function(ev){
+    document.addEventListener(ev, reset);
+  });
+})();
+</script>
+{{end}}
