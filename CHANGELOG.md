@@ -4,6 +4,12 @@ All notable changes to go-passman will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-02-17
+
+### Added
+
+- **Web UI inactivity timer**: if the user is inactive for N minutes (no mouse, keyboard, scroll), the session is locked and the user is redirected to the unlock page. Default: 5 minutes. Set `INACTIVITY_MINUTES` env var to change (e.g. `INACTIVITY_MINUTES=10 go-passman -w`).
+
 ## [0.3.0] - 2026-02-13
 
 ### Added
@@ -199,6 +205,8 @@ MIT License - See LICENSE file for details
 ---
 
 ## Version History
+
+### 0.3.1 (2026-02-17)
 
 ### 0.3.0 (2026-02-13)
 

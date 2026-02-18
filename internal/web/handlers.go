@@ -1,6 +1,7 @@
 package web
 
 import (
+	"encoding/json"
 	"net/http"
 	"sort"
 	"strconv"
@@ -253,6 +254,25 @@ func deleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tmpl.ExecuteTemplate(w, "delete.html", name)
+}
+
+func copyHandler(w http.ResponseWriter, r *http.Request) {
+	v, _, ok := loadVault(w, r)
+	if !ok {
+		return
+	}
+	name := r.URL.Query().Get("name")
+	if name == "" {
+		http.Error(w, "name required", http.StatusBadRequest)
+		return
+	}
+	entry, exists := v.Entries[name]
+	if !exists {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"password": entry.Password})
 }
 
 func showHandler(w http.ResponseWriter, r *http.Request) {

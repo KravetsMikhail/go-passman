@@ -9,6 +9,15 @@ This document provides practical examples for using go-passman in various scenar
 
 In the examples below, `go-passman` stands for the appropriate invocation on your system.
 
+## Web Interface
+
+Run the web UI with `go-passman -w` (or `go-passman --web`). It opens at http://127.0.0.1:8080. You can list, add, edit, delete entries and view passwords in the browser.
+
+**Environment variables:**
+
+- `WEB_PORT` — port number (default 8080). Example: `WEB_PORT=9000 go-passman -w`
+- `INACTIVITY_MINUTES` — minutes of inactivity after which the session is locked and the user is redirected to the unlock page. Default: 5. Example: `INACTIVITY_MINUTES=10 go-passman -w` — lock after 10 minutes without mouse/keyboard/scroll activity.
+
 ## Initial Setup
 
 ### First Run

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"sync"
 
 	"go-passman/internal/models"
@@ -34,6 +35,14 @@ func init() {
 				out = append(out, i)
 			}
 			return out
+		},
+		"inactivityMinutes": func() int {
+			if s := os.Getenv("INACTIVITY_MINUTES"); s != "" {
+				if n, err := strconv.Atoi(s); err == nil && n > 0 {
+					return n
+				}
+			}
+			return 5
 		},
 	}).ParseFS(templatesFS, "templates/*.html"))
 }
@@ -73,6 +82,7 @@ func Run() {
 		addr = "127.0.0.1:" + p
 	}
 	http.HandleFunc("/", listHandler)
+	http.HandleFunc("/api/copy", copyHandler)
 	http.HandleFunc("/logout", logoutHandler)
 	http.HandleFunc("/unlock", unlockHandler)
 	http.HandleFunc("/add", addHandler)
